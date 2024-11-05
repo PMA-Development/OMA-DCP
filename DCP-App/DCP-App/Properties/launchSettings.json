@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DCP-App": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

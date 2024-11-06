@@ -10,6 +10,9 @@ using System.Security.Cryptography.X509Certificates;
 using MQTTnet.Protocol;
 using System.Text;
 using MQTTnet.Formatter;
+using Microsoft.Extensions.DependencyInjection;
+using DCP_App.Services.InfluxDB;
+using DCP_App.Services.Mqtt;
 
 namespace DCP_App
 {
@@ -29,8 +32,7 @@ namespace DCP_App
                 // Change the state of the CancellationToken to "Canceled"
                 // - Set the IsCancellationRequested property to true
                 // - Call the registered callbacks
-                //cts.Cancel();
-                cts.Dispose();
+                cts.Cancel();
             };
 
             ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -47,12 +49,21 @@ namespace DCP_App
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-
+                    services.AddSingleton<MqttConsumerService, MqttConsumerService>();
+                    services.AddSingleton<MqttProviderService, MqttProviderService>();
+                    services.AddSingleton<IInfluxDBService, InfluxDBService>();
                 })
                 .UseSerilog()
                 .Build();
 
-            MqttCollectData.Subscribe_Topic(token);
+            var mqttWorkerClient = host.Services.GetService<MqttConsumerService>();
+            var mqttProviderClient = host.Services.GetService<MqttProviderService>();
+
+            mqttWorkerClient.StartWorker(token);
+            mqttProviderClient.StartWorker(token);
+
+
+            //MqttCollectData.Subscribe_Topic(token);
 
 
             //MqttCollectData.SubscribeAsync().Wait();

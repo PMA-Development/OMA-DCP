@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Entities;
 using MQTTnet.Server;
+using Newtonsoft.Json.Linq;
 
 namespace DCP_App.Services.Mqtt
 {
@@ -62,7 +63,7 @@ namespace DCP_App.Services.Mqtt
             }
 
             this._appClientId = _config["ClientId"]!;
-            _listenTopic = $"dcp/{this._appClientId}";
+            _listenTopic = $"telemetry/{this._appClientId}";
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
@@ -70,23 +71,126 @@ namespace DCP_App.Services.Mqtt
 
         public async Task StartWorker(CancellationToken shutdownToken)
         {
-            while (!shutdownToken.IsCancellationRequested)
+            var concurrent = new SemaphoreSlim(this._concurrentProcesses);
+
+            try
             {
-                try
+                var mqttClientOptions = new MqttClientOptionsBuilder()
+                    .WithTcpServer(_host, _port) // MQTT broker address and port
+                    .WithCredentials(_username, _password) // Set username and password
+                    .WithClientId(_clientId)
+                    .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V500)
+                    //.WithCleanSession()
+                    .Build();
+
+                _mqttClient.ApplicationMessageReceivedAsync += async ea =>
                 {
-                    this._influxDBService.ReadAll().ForEach(it => _logger.LogInformation(it.ToString()));
-                }
-                catch (Exception ex)
+                    await concurrent.WaitAsync(shutdownToken).ConfigureAwait(false);
+
+                    async Task ProcessAsync()
+                    {
+                        try
+                        {
+                            var payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
+
+                            _logger.LogInformation($"Received message: {payload}");
+                            if (ea.ApplicationMessage.Topic == this._listenTopic && ea.ApplicationMessage.ResponseTopic != string.Empty)
+                            {
+                                var result = JsonConvert.DeserializeObject<JToken>(payload);
+                                if (result != null)
+                                {
+                                    DateTime? timestamp = null;
+
+                                    if (result.Contains("LastTimestamp"))
+                                    {
+                                        if (DateTime.TryParse(result["LastTimestamp"]!.ToString(), out _))
+                                        {
+                                            timestamp = DateTime.Parse(result["LastTimestamp"]!.ToString());
+                                        }
+                                    }
+
+                                    await PublishSensorData(ea.ApplicationMessage.ResponseTopic, timestamp, shutdownToken);
+
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            concurrent.Release();
+                        }
+                    }
+
+                    _ = Task.Run(ProcessAsync, shutdownToken);
+                };
+
+                var mqttTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(this._listenTopic)
+                    .WithAtLeastOnceQoS()
+                    .Build();
+
+                var subscribeOption = _mqttFactory.CreateSubscribeOptionsBuilder()
+                    .WithTopicFilter(mqttTopicFilter)
+                    .Build();
+
+                // Handle reconnection logic and cancellation token properly
+                while (!shutdownToken.IsCancellationRequested)
                 {
-                    _logger.LogError(ex, "An error occurred during MQTT operation.");
+                    try
+                    {
+                        // Periodically check if the connection is alive, otherwise reconnect
+                        if (!await _mqttClient.TryPingAsync())
+                        {
+                            _logger.LogInformation("Attempting to connect to MQTT Broker...");
+                            await _mqttClient.ConnectAsync(mqttClientOptions, shutdownToken);
+
+                            // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
+                            await _mqttClient.SubscribeAsync(subscribeOption, shutdownToken);
+                            _logger.LogInformation($"MQTT client subscribed to {_topic}.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "An error occurred during MQTT operation.");
+                    }
+
+                    // Check the connection status every 5 seconds
+                    await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
                 }
 
-                // Check the connection status every 5 seconds
-                await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
+                _logger.LogInformation("Cancellation requested. Exiting...");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Connection failed.");
+            }
+            finally
+            {
+                // Dispose of the MQTT client manually at the end
+                if (_mqttClient.IsConnected)
+                {
+                    await _mqttClient.DisconnectAsync();
+                }
+
+                _mqttClient.Dispose();
             }
         }
 
-            ~MqttProviderService()
+        private async Task PublishSensorData(string topic, DateTime? timestamp, CancellationToken shutdownToken)
+        {
+            List<SensorEntity> sensors;
+            if (timestamp == null)
+                sensors = this._influxDBService.ReadAll();
+            else
+                sensors = this._influxDBService.ReadAfterTimestamp((DateTime)timestamp);
+
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(topic)
+                .WithPayload(JsonConvert.SerializeObject(sensors))
+                .Build();
+
+            await _mqttClient.PublishAsync(applicationMessage, shutdownToken);
+        }
+        ~MqttProviderService()
         {
             // Dispose of the MQTT client manually at the end
             if (_mqttClient.IsConnected)

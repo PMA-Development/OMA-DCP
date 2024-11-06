@@ -73,6 +73,19 @@ namespace DCP_App.Services.InfluxDB
             Console.WriteLine("==== Select ALL ====");
             return query.ToList();
         }
+        
+        public List<SensorEntity> ReadAfterTimestamp(DateTime timestamp)
+        {
+            var queryApi = this._client!.GetQueryApiSync(this._converter);
+            //
+            // Select ALL
+            //
+            var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
+                        where s.Timestamp > timestamp
+                        select s;
+            Console.WriteLine("==== Select ALL ====");
+            return query.ToList();
+        }
 
 
         ~InfluxDBService()

@@ -68,7 +68,7 @@ namespace DCP_App.Services.Mqtt
                 _concurrentProcesses = 1;
             }
 
-            this._turbineId = _config["turbineId"]!;
+            this._turbineId = _config["ClientId"]!;
             this._isTurbine = Convert.ToBoolean(_config["IsTurbine"]!);
 
             _mqttFactory = new MqttFactory();
@@ -82,7 +82,7 @@ namespace DCP_App.Services.Mqtt
              */
 
             //var concurrent = new SemaphoreSlim(Environment.ProcessorCount);
-            var concurrent = new SemaphoreSlim(2);
+            var concurrent = new SemaphoreSlim(this._concurrentProcesses);
 
             try
             {
@@ -171,7 +171,7 @@ namespace DCP_App.Services.Mqtt
             var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
 
             _logger.LogInformation($"Received message: {payload}");
-            if (e.ApplicationMessage.Topic == "telemetry/sensor")
+            if (e.ApplicationMessage.Topic == "telemetry/data/sensor")
             {
                 SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
 

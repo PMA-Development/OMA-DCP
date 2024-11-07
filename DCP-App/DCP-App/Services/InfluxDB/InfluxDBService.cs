@@ -11,7 +11,6 @@ using DCP_App.Services.Mqtt;
 using DCP_App.Entities;
 using InfluxDB.Client.Linq;
 using InfluxDB.Client.Api.Domain;
-using DCP_App.Measurements;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using System.Net.Sockets;
@@ -70,11 +69,10 @@ namespace DCP_App.Services.InfluxDB
             //
             var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
                         select s;
-            Console.WriteLine("==== Select ALL ====");
             return query.ToList();
         }
         
-        public List<SensorEntity> ReadAfterTimestamp(DateTime timestamp)
+        public List<SensorEntity> ReadAfterTimestamp(DateTimeOffset timestamp)
         {
             var queryApi = this._client!.GetQueryApiSync(this._converter);
             //
@@ -83,8 +81,27 @@ namespace DCP_App.Services.InfluxDB
             var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
                         where s.Timestamp > timestamp
                         select s;
-            Console.WriteLine("==== Select ALL ====");
             return query.ToList();
+        }        
+
+        public SensorEntity? GetLatestByClientId(string clientId)
+        {
+            _logger.LogInformation("1");
+
+            var queryApi = this._client!.GetQueryApiSync(this._converter);
+            //
+            // Select ALL
+            //
+            _logger.LogInformation("2");
+            var query = (from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
+                        where s.DcpClientId == clientId
+                        orderby s.Timestamp descending
+                        select s).TakeLast(1);
+            _logger.LogInformation("3");
+
+            SensorEntity? sensorEntity = query.ToList().FirstOrDefault();
+            _logger.LogInformation("4");
+            return query.ToList().FirstOrDefault();
         }
 
 

@@ -28,6 +28,7 @@ namespace DCP_App.InfluxConverters
             var customEntity = new SensorEntity
             {
                 Id = Convert.ToString(fluxRecord.GetValueByKey("id"))!,
+                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("dcp_client_id"))!,
                 TurbineId = Convert.ToString(fluxRecord.GetValueByKey("turbine_id"))!,
                 Type = Convert.ToString(fluxRecord.GetValueByKey("type"))!,
                 Timestamp = fluxRecord.GetTime().GetValueOrDefault().ToDateTimeUtc(),
@@ -64,6 +65,7 @@ namespace DCP_App.InfluxConverters
             var customEntity = new SensorEntity
             {
                 Id = Convert.ToString(fluxRecord.GetValueByKey("id"))!,
+                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("dcp_client_id"))!,
                 TurbineId = Convert.ToString(fluxRecord.GetValueByKey("turbine_id"))!,
                 Type = Convert.ToString(fluxRecord.GetValueByKey("type"))!,
                 Timestamp = fluxRecord.GetTime().GetValueOrDefault().ToDateTimeUtc(),
@@ -98,6 +100,8 @@ namespace DCP_App.InfluxConverters
             var point = PointData
                 .Measurement("sensor")
                 .Tag("id", ce.Id.ToString())
+                .Field("dcp_client_id", ce.DcpClientId)
+                .Field("turbine_id", ce.TurbineId)
                 .Field("type", ce.Type)
                 .Timestamp((DateTimeOffset)ce.Timestamp!, precision);
 
@@ -123,6 +127,8 @@ namespace DCP_App.InfluxConverters
                     return "id";
                 case "Type":
                     return "type";
+                case "DcpClientId":
+                    return "dcp_client_id";
                 case "TurbineId":
                     return "turbine_id";
                 default:
@@ -149,9 +155,7 @@ namespace DCP_App.InfluxConverters
                     return MemberType.Timestamp;
                 case "Name":
                     return MemberType.NamedField;
-                case "Type":
-                    return MemberType.NamedFieldValue;
-                case "TurbineId":
+                case "Value":
                     return MemberType.NamedFieldValue;
                 case "Id":
                     return MemberType.Tag;

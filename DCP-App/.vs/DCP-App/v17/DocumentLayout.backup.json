@@ -3,56 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\influxdb\\influxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\influxdb\\influxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\influxdb\\iinfluxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\influxdb\\iinfluxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\entities\\sensorentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\entities\\sensorentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\influxconverters\\sensorentityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\influxconverters\\sensorentityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\entities\\telemetryentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\entities\\telemetryentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\models\\requestsensordatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\models\\requestsensordatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\measurements\\weathermeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\measurements\\weathermeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\influxdb\\influxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\influxdb\\influxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\measurements\\generatormeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\measurements\\generatormeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\influxdb\\iinfluxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\influxdb\\iinfluxdbservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\measurements\\positionmeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\measurements\\positionmeasurement.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\models\\publishavailablemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\models\\publishavailablemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\models\\mqttsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\models\\mqttsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\influxconverters\\sensorentityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\influxconverters\\sensorentityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\dcp-app.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
@@ -66,58 +54,58 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
+              "Title": "PublishAvailableModel.cs",
+              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\PublishAvailableModel.cs",
+              "RelativeDocumentMoniker": "DCP-App\\Models\\PublishAvailableModel.cs",
+              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\PublishAvailableModel.cs",
+              "RelativeToolTip": "DCP-App\\Models\\PublishAvailableModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-07T09:38:52.645Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "RequestSensorDataModel.cs",
+              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\RequestSensorDataModel.cs",
+              "RelativeDocumentMoniker": "DCP-App\\Models\\RequestSensorDataModel.cs",
+              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\RequestSensorDataModel.cs",
+              "RelativeToolTip": "DCP-App\\Models\\RequestSensorDataModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-07T08:17:41.986Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "SensorEntity.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Entities\\SensorEntity.cs",
               "RelativeDocumentMoniker": "DCP-App\\Entities\\SensorEntity.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Entities\\SensorEntity.cs",
               "RelativeToolTip": "DCP-App\\Entities\\SensorEntity.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T21:11:59.907Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "SensorEntityConverter.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\InfluxConverters\\SensorEntityConverter.cs",
               "RelativeDocumentMoniker": "DCP-App\\InfluxConverters\\SensorEntityConverter.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\InfluxConverters\\SensorEntityConverter.cs",
               "RelativeToolTip": "DCP-App\\InfluxConverters\\SensorEntityConverter.cs",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAYwG8AAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAHcAAAAAAAAAAAAgwKEAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T21:07:42.315Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "GeneratorMeasurement.cs",
-              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\GeneratorMeasurement.cs",
-              "RelativeDocumentMoniker": "DCP-App\\Measurements\\GeneratorMeasurement.cs",
-              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\GeneratorMeasurement.cs",
-              "RelativeToolTip": "DCP-App\\Measurements\\GeneratorMeasurement.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T20:32:23.673Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "WeatherMeasurement.cs",
-              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\WeatherMeasurement.cs",
-              "RelativeDocumentMoniker": "DCP-App\\Measurements\\WeatherMeasurement.cs",
-              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\WeatherMeasurement.cs",
-              "RelativeToolTip": "DCP-App\\Measurements\\WeatherMeasurement.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T20:25:15.277Z",
               "EditorCaption": ""
             },
             {
@@ -128,118 +116,79 @@
               "RelativeDocumentMoniker": "DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
               "RelativeToolTip": "DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAqwEUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAqwK0AAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T16:06:17.992Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "InfluxDBService.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\InfluxDB\\InfluxDBService.cs",
               "RelativeDocumentMoniker": "DCP-App\\Services\\InfluxDB\\InfluxDBService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\InfluxDB\\InfluxDBService.cs",
               "RelativeToolTip": "DCP-App\\Services\\InfluxDB\\InfluxDBService.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAAADYAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAuwEkAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T12:01:15.111Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "IInfluxDBService.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\InfluxDB\\IInfluxDBService.cs",
               "RelativeDocumentMoniker": "DCP-App\\Services\\InfluxDB\\IInfluxDBService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\InfluxDB\\IInfluxDBService.cs",
               "RelativeToolTip": "DCP-App\\Services\\InfluxDB\\IInfluxDBService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T11:59:52.01Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "MqttConsumerService.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "RelativeDocumentMoniker": "DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "RelativeToolTip": "DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
-              "ViewState": "AgIAALYAAAAAAAAAAAAuwM8AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAmwKQAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T06:36:03.173Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "TelemetryEntity.cs",
-              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Entities\\TelemetryEntity.cs",
-              "RelativeDocumentMoniker": "DCP-App\\Entities\\TelemetryEntity.cs",
-              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Entities\\TelemetryEntity.cs",
-              "RelativeToolTip": "DCP-App\\Entities\\TelemetryEntity.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T11:45:22.621Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Program.cs",
               "RelativeDocumentMoniker": "DCP-App\\Program.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Program.cs",
               "RelativeToolTip": "DCP-App\\Program.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAYwDsAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAYwD4AAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-05T11:08:08.273Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "PositionMeasurement.cs",
-              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\PositionMeasurement.cs",
-              "RelativeDocumentMoniker": "DCP-App\\Measurements\\PositionMeasurement.cs",
-              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Measurements\\PositionMeasurement.cs",
-              "RelativeToolTip": "DCP-App\\Measurements\\PositionMeasurement.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T20:28:16.186Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "MqttSettings.cs",
-              "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\MqttSettings.cs",
-              "RelativeDocumentMoniker": "DCP-App\\Models\\MqttSettings.cs",
-              "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Models\\MqttSettings.cs",
-              "RelativeToolTip": "DCP-App\\Models\\MqttSettings.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-06T16:19:25.935Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 7,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\appsettings.json",
               "RelativeDocumentMoniker": "DCP-App\\appsettings.json",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\appsettings.json",
               "RelativeToolTip": "DCP-App\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-11-05T11:52:49.497Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 10,
               "Title": "DCP-App.csproj",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\DCP-App.csproj",
               "RelativeDocumentMoniker": "DCP-App\\DCP-App.csproj",

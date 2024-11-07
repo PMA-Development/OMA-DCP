@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using InfluxDB.Client.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,11 @@ using System.Threading.Tasks;
 
 namespace DCP_App.Entities
 {
+    [Measurement("sensor")]
     public class SensorEntity
     {
         public required string Id { get; set; }
+        public required string DcpClientId { get; set; }
         public required string? TurbineId { get; set; }
         public required string Type { get; set; }
         public DateTimeOffset? Timestamp { get; set; }

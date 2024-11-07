@@ -11,7 +11,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Entities;
-using DCP_App.Measurements;
+using Newtonsoft.Json.Linq;
+using System.Reactive;
+using DCP_App.Models;
 
 namespace DCP_App.Services.Mqtt
 {
@@ -34,13 +36,14 @@ namespace DCP_App.Services.Mqtt
 
         private readonly int _concurrentProcesses;
 
+        private readonly string _appClientId;
+
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
 
-        private readonly string _topicPrefix = "telemetry/";
-        private readonly string _topicGenerator = "generator";
-        private readonly string _topicPosition = "position";
-        private readonly string _topicWeather = "weather";
+        private readonly string _sensorTopic;
+        private readonly string _receiveTopic;
+        private readonly string _availableTopic;
 
         public MqttConsumerService(ILogger<MqttConsumerService> logger, IConfiguration config, IInfluxDBService InfluxDBService)
         {
@@ -71,8 +74,14 @@ namespace DCP_App.Services.Mqtt
             this._turbineId = _config["ClientId"]!;
             this._isTurbine = Convert.ToBoolean(_config["IsTurbine"]!);
 
+            this._appClientId = _config["ClientId"]!;
+
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
+
+            this._sensorTopic = "telemetry/sensor";
+            this._receiveTopic = $"telemetry/client/{this._appClientId}/request";
+            this._availableTopic = "telemetry/available";
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)
@@ -102,8 +111,61 @@ namespace DCP_App.Services.Mqtt
                     {
                         try
                         {
-                            // DO YOUR WORK HERE!
-                            await _ProcessRecievedMessage(ea);
+                            var payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
+
+                            _logger.LogInformation($"Consumer - Received message: {payload}");
+                            _logger.LogInformation($"Consumer - topic: {ea.ApplicationMessage.Topic}");
+                            _logger.LogInformation($"Consumer - ResponseTopic: {ea.ApplicationMessage.ResponseTopic}");
+                            if (ea.ApplicationMessage.Topic == this._sensorTopic)
+                            {
+                                SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
+
+                                if (sensorEntity != null)
+                                {
+                                    if (!sensorEntity.Timestamp.HasValue)
+                                    {
+                                        sensorEntity.Timestamp = DateTime.UtcNow;
+                                    }
+                                    if (this._isTurbine)
+                                    {
+                                        sensorEntity.TurbineId = this._turbineId;
+                                    }
+                                    sensorEntity.DcpClientId = this._appClientId;
+
+                                    await _influxDBService.WriteAsync(new List<SensorEntity> { sensorEntity });
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"Recied no sensor data on topic: {ea.ApplicationMessage.Topic}!");
+                                }
+                            }
+
+                            else if (ea.ApplicationMessage.Topic == this._availableTopic)
+                            {
+                                _logger.LogInformation($"Consumer - Processing topic: {ea.ApplicationMessage.Topic}");
+                                PublishAvailableModel? publishAvailableModel = JsonConvert.DeserializeObject<PublishAvailableModel>(payload);
+                                if (publishAvailableModel != null)
+                                {
+                                    RequestSensorData(ea.ApplicationMessage.ResponseTopic, publishAvailableModel.ClientId, shutdownToken).Wait();
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"No client Id recied on topic {ea.ApplicationMessage.Topic}!");
+                                }
+                            }
+
+                            else if (ea.ApplicationMessage.Topic == this._receiveTopic)
+                            {
+                                List<SensorEntity>? sensorEntities = JsonConvert.DeserializeObject<List<SensorEntity>>(payload);
+                                if (sensorEntities != null)
+                                {
+                                    await _influxDBService.WriteAsync(sensorEntities);
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
+                                }
+                            }
                         }
                         finally
                         {
@@ -114,13 +176,31 @@ namespace DCP_App.Services.Mqtt
                     _ = Task.Run(ProcessAsync, shutdownToken);
                 };
 
-                var mqttTopicFilter = new MqttTopicFilterBuilder()
-                    .WithTopic("telemetry/sensor")
+                var mqttSensorTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(this._sensorTopic)
                     .WithAtLeastOnceQoS()
                     .Build();
 
-                var subscribeOption = _mqttFactory.CreateSubscribeOptionsBuilder()
-                    .WithTopicFilter(mqttTopicFilter)
+                var sensorSubscribeOption = _mqttFactory.CreateSubscribeOptionsBuilder()
+                    .WithTopicFilter(mqttSensorTopicFilter)
+                    .Build();
+
+                var mqttReceiveTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(this._sensorTopic)
+                    .WithAtLeastOnceQoS()
+                    .Build();
+
+                var receiveSubscribeOption = _mqttFactory.CreateSubscribeOptionsBuilder()
+                    .WithTopicFilter(mqttReceiveTopicFilter)
+                    .Build();
+
+                var mqttAvailableTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(this._availableTopic)
+                    .WithAtLeastOnceQoS()
+                    .Build();
+
+                var availableSubscribeOption = _mqttFactory.CreateSubscribeOptionsBuilder()
+                    .WithTopicFilter(mqttAvailableTopicFilter)
                     .Build();
 
                 // Handle reconnection logic and cancellation token properly
@@ -135,8 +215,17 @@ namespace DCP_App.Services.Mqtt
                             await _mqttClient.ConnectAsync(mqttClientOptions, shutdownToken);
 
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
-                            await _mqttClient.SubscribeAsync(subscribeOption, shutdownToken);
+                            await _mqttClient.SubscribeAsync(sensorSubscribeOption, shutdownToken);
                             _logger.LogInformation($"MQTT client subscribed to {_topic}.");
+
+                            // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
+                            await _mqttClient.SubscribeAsync(receiveSubscribeOption, shutdownToken);
+                            _logger.LogInformation($"MQTT client subscribed to {this._receiveTopic}.");
+
+
+                            // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
+                            await _mqttClient.SubscribeAsync(availableSubscribeOption, shutdownToken);
+                            _logger.LogInformation($"MQTT client subscribed to {this._availableTopic}.");
                         }
                     }
                     catch (Exception ex)
@@ -166,33 +255,26 @@ namespace DCP_App.Services.Mqtt
             }
         }
 
-        private async Task _ProcessRecievedMessage(MqttApplicationMessageReceivedEventArgs e)
+        private async Task RequestSensorData(string topic, string clientId, CancellationToken shutdownToken)
         {
-            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
-
-            _logger.LogInformation($"Received message: {payload}");
-            if (e.ApplicationMessage.Topic == "telemetry/data/sensor")
+            _logger.LogInformation($"response topic {topic}");
+            SensorEntity? sensor = this._influxDBService.GetLatestByClientId(clientId);
+            RequestSensorDataModel requestSensorData = new RequestSensorDataModel();
+            if ( sensor != null)
             {
-                SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
-
-                if (sensorEntity != null)
-                {
-                    if (!sensorEntity.Timestamp.HasValue)
-                    {
-                        sensorEntity.Timestamp = DateTime.UtcNow;
-                    }
-                    if (this._isTurbine)
-                    {
-                        sensorEntity.TurbineId = this._turbineId;
-                    }
-
-                    await _influxDBService.WriteAsync(new List<SensorEntity> { sensorEntity });
-                }
-                else
-                {
-                    _logger.LogInformation("Weather measurement was null!");
-                }
+                requestSensorData.Timestamp = sensor.Timestamp != null ? (DateTimeOffset)sensor.Timestamp: new DateTimeOffset();
             }
+
+            _logger.LogInformation($"response topic {topic}");
+
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(topic)
+                .WithPayload(JsonConvert.SerializeObject(requestSensorData))
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithResponseTopic(this._receiveTopic)
+                .Build();
+
+            await _mqttClient.PublishAsync(applicationMessage, shutdownToken);
         }
 
         ~MqttConsumerService()

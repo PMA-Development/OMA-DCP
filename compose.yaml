@@ -1,11 +1,12 @@
 services:
-  DCP-App:
+  dcp-app:
     build: # "context" and "dockerfile" fields have to be under "build"
-      context: ./DCP-App/
-      dockerfile: ./DCP-App/DCP-App/Dockerfile
+      context: ./DCP-App
+      dockerfile: ./DCP-App/Dockerfile
     restart: always
     depends_on:
       - emqx
+      - influxdb
     env_file: "DCP-App.env"
   
   emqx:

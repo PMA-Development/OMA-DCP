@@ -118,3 +118,7 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
     "Token": "",
   }
 }
+```
+
+## Credits
+- [InfluxDB Script](https://github.com/alekece/tig-stack)

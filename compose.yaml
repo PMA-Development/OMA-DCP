@@ -1,0 +1,13 @@
+services:
+  DCP_APP:
+    build: # "context" and "dockerfile" fields have to be under "build"
+      context: .
+      dockerfile: ./DCP-App/Dockerfile
+    depends_on:
+      - emqx
+  
+  emqx:
+      image: emqx:latest
+      ports:
+        - "18083:18083"
+        - "1883:1883"

@@ -62,14 +62,14 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
 ## appsettings.json
 ```JSON
 {
-  "ClientId": "1", // This is the unique application ID, and is used for identifying the application on the network.
+  "ClientId": "", // This is the unique application ID, and is used for identifying the application on the network. Overriden with guid if left blank
   "MqttConsumer": {
     "Host": "127.0.0.1",
     "Port": 1883,
     "ClientId": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
     "Username": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
     "Password": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
-    "ConcurrentProcesses": 2
+    "ConcurrentProcesses": 1 // This is how many concurrent MQTT subscribed topics, that is allowed to consume messages at once. Keep it lower than the CPU cores available on the system.
   },
   "MqttProvider": {
     "Enabled": true, // Disable the provider, if the provider is not needed. This is used at the last collection point.
@@ -78,7 +78,7 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
     "ClientId": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
     "Username": "", // Place in usersecrets or parse as Environment variables
     "Password": "", // Place in usersecrets or parse as Environment variables
-    "ConcurrentProcesses": 2, // This is how many concurrent MQTT consumers, that is allowed to consume messages at once. Keep it lower than the CPU cores available on the system.
+    "ConcurrentProcesses": 1, // This is how many concurrent MQTT subscribed topics, that is allowed to consume messages at once. Keep it lower than the CPU cores available on the system.
     "PublishDataAvailableSeconds": 5 // How often the it should announce data is available for consumers.
   },
   "InfluxDB": {

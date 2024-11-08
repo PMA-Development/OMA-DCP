@@ -15,7 +15,7 @@ services:
       ports:
         - "18083:18083"
         - "1883:1883"
-      env_file: "DCP-App.env"
+      env_file: "EMQX.env"
       volumes:
       - emqx-data:/opt/emqx/data
       - emqx-log:/opt/emqx/log
@@ -25,7 +25,7 @@ services:
     volumes:
       - influxdb-storage:/var/lib/influxdb2:rw
     env_file:
-      - DCP-App.env
+      - InfluxDB.env
     entrypoint: ["./entrypoint.sh"]
     restart: on-failure:10
     ports:

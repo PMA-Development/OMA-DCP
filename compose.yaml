@@ -15,8 +15,10 @@ services:
         - "18083:18083"
         - "1883:1883"
       env_file: "DCP-App.env"
+      volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
   
-  services:
   influxdb:
     image: influxdb:2.1.1
     volumes:
@@ -27,3 +29,8 @@ services:
     restart: on-failure:10
     ports:
       - ${DOCKER_INFLUXDB_INIT_PORT}:8086
+
+volumes:
+  influxdb-storage:
+  emqx-data:
+  emqx-log:

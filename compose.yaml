@@ -1,0 +1,36 @@
+services:
+  DCP-App:
+    build: # "context" and "dockerfile" fields have to be under "build"
+      context: ./DCP-App/
+      dockerfile: ./DCP-App/DCP-App/Dockerfile
+    restart: always
+    depends_on:
+      - emqx
+    env_file: "DCP-App.env"
+  
+  emqx:
+      image: emqx:latest
+      restart: always
+      ports:
+        - "18083:18083"
+        - "1883:1883"
+      env_file: "DCP-App.env"
+      volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+  
+  influxdb:
+    image: influxdb:2.1.1
+    volumes:
+      - influxdb-storage:/var/lib/influxdb2:rw
+    env_file:
+      - DCP-App.env
+    entrypoint: ["./entrypoint.sh"]
+    restart: on-failure:10
+    ports:
+      - ${DOCKER_INFLUXDB_INIT_PORT}:8086
+
+volumes:
+  influxdb-storage:
+  emqx-data:
+  emqx-log:

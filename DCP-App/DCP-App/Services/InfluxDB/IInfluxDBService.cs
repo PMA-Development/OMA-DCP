@@ -1,4 +1,9 @@
 ﻿using DCP_App.Entities;
+using DCP_App.InfluxConverters;
+using DCP_App.Services.Mqtt;
+using InfluxDB.Client;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DCP_App.Services.InfluxDB
 {

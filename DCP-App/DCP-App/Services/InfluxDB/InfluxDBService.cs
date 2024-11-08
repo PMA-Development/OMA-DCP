@@ -18,7 +18,6 @@ namespace DCP_App.Services.InfluxDB
         private readonly string _host;
         private readonly string _bucket;
         private readonly string _org;
-        private readonly string _measurement;
 
         private readonly InfluxDBClientOptions _options;
         private readonly SensorEntityConverter _converter;
@@ -33,7 +32,6 @@ namespace DCP_App.Services.InfluxDB
             this._host = config["InfluxDB:Host"]!;
             this._bucket = config["InfluxDB:Bucket"]!;
             this._org = config["InfluxDB:Org"]!;
-            this._measurement = config["InfluxDB:Measurement"]!;
 
             this._options = new InfluxDBClientOptions(this._host)
             {
@@ -100,6 +98,7 @@ namespace DCP_App.Services.InfluxDB
 
             SensorEntity? sensorEntity = query.ToList().FirstOrDefault();
             _logger.LogDebug("InfluxDB - GetLatestByClientId: After query");
+            // FirstOrDefault does not work, found a solution here: https://github.com/influxdata/influxdb-client-csharp/issues/151
             return query.ToList().FirstOrDefault();
         }
 

@@ -1,15 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using MQTTnet.Server;
-using MQTTnet;
 using Serilog;
-using MQTTnet.Internal;
-using MQTTnet.Client;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using MQTTnet.Protocol;
-using System.Text;
-using MQTTnet.Formatter;
 using Microsoft.Extensions.DependencyInjection;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Services.Mqtt;
@@ -52,10 +43,7 @@ namespace DCP_App
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<MqttConsumerService, MqttConsumerService>();
-
-                    // Do not run the provider client, if the provider is not enabled
-                    if (Convert.ToBoolean(config["MqttProvider:Enabled"]))
-                        services.AddSingleton<MqttProviderService, MqttProviderService>();
+                    services.AddSingleton<MqttProviderService, MqttProviderService>();
 
                     services.AddSingleton<IInfluxDBService, InfluxDBService>();
                 })
@@ -85,6 +73,7 @@ namespace DCP_App
             builder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+                .AddUserSecrets<Program>()
                 .AddEnvironmentVariables();
         }
     }

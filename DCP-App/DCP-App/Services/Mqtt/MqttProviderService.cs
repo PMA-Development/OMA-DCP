@@ -33,6 +33,10 @@ namespace DCP_App.Services.Mqtt
 
         private readonly string _availableTopic;
 
+        private readonly List<string> _forwardTopics;
+
+        private bool _publishBeacon = true;
+
         public MqttProviderService(ILogger<MqttProviderService> logger, IConfiguration config, IInfluxDBService InfluxDBService)
         {
             _logger = logger;
@@ -58,12 +62,14 @@ namespace DCP_App.Services.Mqtt
             }
 
             this._appClientId = _config["ClientId"]!;
-            _requestTopic = $"telemetry/client/{this._appClientId}/request";
+            _requestTopic = $"dcp/client/{this._appClientId}/telemetry/request";
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
 
-            this._availableTopic = "telemetry/available";
+            this._availableTopic = "dcp/telemetry/available";
+
+            this._forwardTopics = new List<string> { "device/outbound" };
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)
@@ -74,7 +80,10 @@ namespace DCP_App.Services.Mqtt
             }
 
             // Let the publish run concurrently
-            _ = PublishDataAvailable(shutdownToken);
+            _ = Task.Run(() => PublishDataAvailable(shutdownToken));
+
+            // Process the queue async
+            _ = Task.Run(() => ProcessForwardMessageQueue(shutdownToken));
 
             var concurrent = new SemaphoreSlim(this._concurrentProcesses);
 
@@ -110,6 +119,20 @@ namespace DCP_App.Services.Mqtt
 
                                 }
                             }
+                            else if (_forwardTopics.Any(t => ea.ApplicationMessage.Topic.StartsWith(t)))
+                            { 
+                                _logger.LogDebug($"Provider - Outbound: Queuing {ea.ApplicationMessage.Topic}");
+                                var applicationMessage = new MqttApplicationMessageBuilder()
+                                    .WithTopic(ea.ApplicationMessage.Topic)
+                                    .WithPayload(payload)
+                                    .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+
+                                if (ea.ApplicationMessage.ResponseTopic != string.Empty)
+                                {
+                                    applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
+                                }
+                                ForwardTopicQueues.Outbound.Enqueue(applicationMessage);
+                            }
                         }
                         finally
                         {
@@ -129,6 +152,21 @@ namespace DCP_App.Services.Mqtt
                     .WithTopicFilter(mqttTopicFilter)
                     .Build();
 
+                List<MqttClientSubscribeOptions> forwardTopicsSubscribeOptions = new List<MqttClientSubscribeOptions>();
+
+                foreach (var forwardTopic in this._forwardTopics)
+                {
+
+                    var forwardTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(forwardTopic + "#") // Add multilelvel wildcard, to subscribe to all levels
+                    .WithAtLeastOnceQoS()
+                    .Build();
+
+                    forwardTopicsSubscribeOptions.Add(_mqttFactory.CreateSubscribeOptionsBuilder()
+                        .WithTopicFilter(forwardTopicFilter)
+                        .Build());
+                }
+
                 // Handle reconnection logic and cancellation token properly
                 while (!shutdownToken.IsCancellationRequested)
                 {
@@ -143,6 +181,18 @@ namespace DCP_App.Services.Mqtt
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(subscribeOption, shutdownToken);
                             _logger.LogInformation($"Provider - MQTT client subscribed to {this._requestTopic}.");
+
+                            foreach (var forwardSubscribeOption in forwardTopicsSubscribeOptions)
+                            {
+                                // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
+                                await _mqttClient.SubscribeAsync(forwardSubscribeOption, shutdownToken);
+                                _logger.LogInformation($"Provider - MQTT client subscribed to forwading topic: {forwardSubscribeOption}.");
+                            }
+
+                            if (this._publishBeacon)
+                            {
+                                
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -203,7 +253,7 @@ namespace DCP_App.Services.Mqtt
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Provider - Connection failed.");
+                        _logger.LogError(ex, "Provider - PublishDataAvailable: Connection failed.");
                     }
                 }
                 else
@@ -213,6 +263,34 @@ namespace DCP_App.Services.Mqtt
                 await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
             }
             
+        }
+
+        private async Task ProcessForwardMessageQueue(CancellationToken shutdownToken)
+        {
+            while (!shutdownToken.IsCancellationRequested)
+            {
+                if (ForwardTopicQueues.Inbound.Count != 0)
+                {
+                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                    await PulishMessage(msg, shutdownToken);
+                }
+            }
+
+        }
+
+        public async Task PulishMessage(MqttApplicationMessage? msg, CancellationToken shutdownToken)
+        {
+            if (await _mqttClient.TryPingAsync())
+            {
+                try
+                {
+                    await _mqttClient.PublishAsync(msg, shutdownToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Provider - PulbishMessage: Connection failed.");
+                }
+            }
         }
 
         ~MqttProviderService()

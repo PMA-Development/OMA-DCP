@@ -1,19 +1,13 @@
 ﻿using MQTTnet.Client;
 using MQTTnet;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Entities;
-using Newtonsoft.Json.Linq;
-using System.Reactive;
 using DCP_App.Models;
+using MQTTnet.Server;
 
 namespace DCP_App.Services.Mqtt
 {
@@ -42,6 +36,10 @@ namespace DCP_App.Services.Mqtt
         private readonly string _sensorTopic;
         private readonly string _receiveTopic;
         private readonly string _availableTopic;
+
+        private readonly List<string> _forwardTopics;
+
+        private readonly bool _providerEnabled;
 
         public MqttConsumerService(ILogger<MqttConsumerService> logger, IConfiguration config, IInfluxDBService InfluxDBService)
         {
@@ -75,9 +73,12 @@ namespace DCP_App.Services.Mqtt
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
 
-            this._sensorTopic = "telemetry/sensor";
-            this._receiveTopic = $"telemetry/client/{this._appClientId}/request";
-            this._availableTopic = "telemetry/available";
+            this._sensorTopic = "telemetry";
+            this._receiveTopic = $"dcp/client/{this._appClientId}/telemetry/receive";
+            this._availableTopic = "dcp/telemetry/available";
+            this._forwardTopics = new List<string> { "device/inbound" };
+
+            this._providerEnabled = Convert.ToBoolean(config["MqttProvider:Enabled"]);
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)
@@ -85,6 +86,9 @@ namespace DCP_App.Services.Mqtt
             /*
              * This sample subscribes to a topic.
              */
+
+            // Process the queue async
+            _ = Task.Run(() => ProcessForwardMessageQueue(shutdownToken));
 
             //var concurrent = new SemaphoreSlim(Environment.ProcessorCount);
             var concurrent = new SemaphoreSlim(this._concurrentProcesses);
@@ -162,6 +166,30 @@ namespace DCP_App.Services.Mqtt
                                     _logger.LogDebug($"Consumer - Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
                                 }
                             }
+
+                            else if (_forwardTopics.Any(t => ea.ApplicationMessage.Topic.StartsWith(t)))
+                            {
+                                if (this._providerEnabled)
+                                {
+                                    _logger.LogDebug($"Consumer - Inbound: Queuing {ea.ApplicationMessage.Topic}");
+                                    var applicationMessage = new MqttApplicationMessageBuilder()
+                                        .WithTopic(ea.ApplicationMessage.Topic)
+                                        .WithPayload(payload)
+                                        .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+
+                                    if (ea.ApplicationMessage.ResponseTopic != string.Empty)
+                                    {
+                                        applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
+                                    }
+                                    ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+                                }
+                            }
+
+                            else
+                            {
+                                _logger.LogDebug($"Consumer - Unknown topic {ea.ApplicationMessage.Topic}!");
+                            }
+
                         }
                         finally
                         {
@@ -199,6 +227,21 @@ namespace DCP_App.Services.Mqtt
                     .WithTopicFilter(mqttAvailableTopicFilter)
                     .Build();
 
+                List<MqttClientSubscribeOptions> forwardTopicsSubscribeOptions = new List<MqttClientSubscribeOptions>();
+
+                foreach (var forwardTopic in this._forwardTopics)
+                {
+
+                    var forwardTopicFilter = new MqttTopicFilterBuilder()
+                    .WithTopic(forwardTopic + "#") // Add multilelvel wildcard, to subscribe to all levels
+                    .WithAtLeastOnceQoS()
+                    .Build();
+
+                    forwardTopicsSubscribeOptions.Add(_mqttFactory.CreateSubscribeOptionsBuilder()
+                        .WithTopicFilter(forwardTopicFilter)
+                        .Build());
+                }
+
                 // Handle reconnection logic and cancellation token properly
                 while (!shutdownToken.IsCancellationRequested)
                 {
@@ -222,6 +265,13 @@ namespace DCP_App.Services.Mqtt
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(availableSubscribeOption, shutdownToken);
                             _logger.LogInformation($"Consumer - MQTT client subscribed to {this._availableTopic}.");
+
+                            foreach (var forwardSubscribeOption in forwardTopicsSubscribeOptions)
+                            {
+                                // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
+                                await _mqttClient.SubscribeAsync(forwardSubscribeOption, shutdownToken);
+                                _logger.LogInformation($"Consumer - MQTT client subscribed to forwading topic: {forwardSubscribeOption}.");
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -268,6 +318,34 @@ namespace DCP_App.Services.Mqtt
                 .Build();
 
             await _mqttClient.PublishAsync(applicationMessage, shutdownToken);
+        }
+
+        private async Task ProcessForwardMessageQueue(CancellationToken shutdownToken)
+        {
+            while (!shutdownToken.IsCancellationRequested)
+            {
+                if (ForwardTopicQueues.Outbound.Count != 0)
+                {
+                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                    await PulishMessage(msg, shutdownToken);
+                }
+            }
+
+        }
+
+        public async Task PulishMessage(MqttApplicationMessage? msg, CancellationToken shutdownToken)
+        {
+            if (await _mqttClient.TryPingAsync())
+            {
+                try
+                {
+                    await _mqttClient.PublishAsync(msg, shutdownToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Consumer - PulbishMessage: Connection failed.");
+                }
+            }
         }
 
         ~MqttConsumerService()

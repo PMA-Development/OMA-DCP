@@ -1,18 +1,12 @@
 ﻿using MQTTnet.Client;
 using MQTTnet;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Entities;
 using MQTTnet.Server;
-using Newtonsoft.Json.Linq;
 using DCP_App.Models;
 
 namespace DCP_App.Services.Mqtt
@@ -25,7 +19,6 @@ namespace DCP_App.Services.Mqtt
 
         private readonly string _host;
         private readonly int _port = 1883; // default
-        private readonly string _topic;
         private readonly string _requestTopic;
         private readonly string _clientId;
         private readonly string _username;
@@ -54,7 +47,6 @@ namespace DCP_App.Services.Mqtt
             _clientId = _config["MqttProvider:ClientId"]!;
             _username = _config["MqttProvider:Username"]!;
             _password = _config["MqttProvider:Password"]!;
-            _topic = _config["MqttProvider:Topic"]!;
 
             if (int.TryParse(_config["MqttProvider:ConcurrentProcesses"]!, out _))
             {
@@ -106,15 +98,14 @@ namespace DCP_App.Services.Mqtt
                         {
                             var payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
 
-                            _logger.LogInformation($"Provider - Received message: {payload}");
-                            _logger.LogInformation($"Provider - topic: {ea.ApplicationMessage.Topic}");
-                            _logger.LogInformation($"Provider - ResponseTopic: {ea.ApplicationMessage.ResponseTopic}");
+                            _logger.LogDebug($"Provider - Received message: {payload}");
+                            _logger.LogDebug($"Provider - topic: {ea.ApplicationMessage.Topic}");
+                            _logger.LogDebug($"Provider - ResponseTopic: {ea.ApplicationMessage.ResponseTopic}");
                             if (ea.ApplicationMessage.Topic == this._requestTopic && ea.ApplicationMessage.ResponseTopic != string.Empty)
                             {
                                 RequestSensorDataModel? requestSensorDataModel = JsonConvert.DeserializeObject<RequestSensorDataModel>(payload);
                                 if (requestSensorDataModel != null)
                                 {
-                                    _logger.LogInformation($"Provider - before: {ea.ApplicationMessage.ResponseTopic}");
                                     await PublishSensorData(ea.ApplicationMessage.ResponseTopic, requestSensorDataModel.Timestamp, shutdownToken);
 
                                 }
@@ -146,37 +137,35 @@ namespace DCP_App.Services.Mqtt
                         // Periodically check if the connection is alive, otherwise reconnect
                         if (!await _mqttClient.TryPingAsync())
                         {
-                            _logger.LogInformation("Attempting to connect to MQTT Broker...");
+                            _logger.LogInformation("Provider - Attempting to connect to MQTT Broker...");
                             await _mqttClient.ConnectAsync(mqttClientOptions, shutdownToken);
 
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(subscribeOption, shutdownToken);
-                            _logger.LogInformation($"MQTT client subscribed to {_topic}.");
+                            _logger.LogInformation($"Provider - MQTT client subscribed to {this._requestTopic}.");
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "An error occurred during MQTT operation.");
+                        _logger.LogError(ex, "Provider - An error occurred during MQTT operation.");
                     }
 
                     // Check the connection status every 5 seconds
                     await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
                 }
 
-                _logger.LogInformation("Cancellation requested. Exiting...");
+                _logger.LogInformation("Provider - Cancellation requested. Exiting...");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Connection failed.");
+                _logger.LogError(ex, "Provider - Connection failed.");
             }
         }
 
         private async Task PublishSensorData(string topic, DateTimeOffset timestamp, CancellationToken shutdownToken)
         {
-            _logger.LogInformation($"Provider - 1");
             List<SensorEntity> sensors;
             sensors = this._influxDBService.ReadAfterTimestamp(timestamp);
-            _logger.LogInformation($"Provider - 2");
 
             foreach (var sensor in sensors)
             {
@@ -190,8 +179,6 @@ namespace DCP_App.Services.Mqtt
                 .Build();
 
             await _mqttClient.PublishAsync(applicationMessage, shutdownToken);
-
-            _logger.LogInformation($"Provider - 3");
         }
 
         private async Task PublishDataAvailable(CancellationToken shutdownToken)
@@ -212,16 +199,16 @@ namespace DCP_App.Services.Mqtt
 
                         await _mqttClient.PublishAsync(applicationMessage, shutdownToken);
                         // Broadcast every 5 seconds
-                        _logger.LogInformation($"Publishing {applicationMessage}");
+                        _logger.LogDebug($"Provider - Publishing {applicationMessage}");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Connection failed.");
+                        _logger.LogError(ex, "Provider - Connection failed.");
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"Available: Client not connected!");
+                    _logger.LogDebug($"Provider - Available: Client not connected!");
                 }
                 await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
             }

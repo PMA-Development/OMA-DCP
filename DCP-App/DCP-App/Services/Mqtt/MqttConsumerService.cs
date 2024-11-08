@@ -25,8 +25,6 @@ namespace DCP_App.Services.Mqtt
 
         private readonly string _host;
         private readonly int _port = 1883; // default
-        private readonly string _topic;
-        private readonly string _telemetryTopic;
         private readonly string _clientId;
         private readonly string _username;
         private readonly string _password;
@@ -59,8 +57,6 @@ namespace DCP_App.Services.Mqtt
             _clientId = _config["MqttConsumer:ClientId"]!;
             _username = _config["MqttConsumer:Username"]!;
             _password = _config["MqttConsumer:Password"]!;
-            _topic = _config["MqttConsumer:Topic"]!;
-            _telemetryTopic = _config["MqttConsumer:TelemetryTopic"]!;
 
             if (int.TryParse(_config["MqttConsumer:ConcurrentProcesses"]!, out _))
             {
@@ -113,9 +109,9 @@ namespace DCP_App.Services.Mqtt
                         {
                             var payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
 
-                            _logger.LogInformation($"Consumer - Received message: {payload}");
-                            _logger.LogInformation($"Consumer - topic: {ea.ApplicationMessage.Topic}");
-                            _logger.LogInformation($"Consumer - ResponseTopic: {ea.ApplicationMessage.ResponseTopic}");
+                            _logger.LogDebug($"Consumer - Received message: {payload}");
+                            _logger.LogDebug($"Consumer - topic: {ea.ApplicationMessage.Topic}");
+                            _logger.LogDebug($"Consumer - ResponseTopic: {ea.ApplicationMessage.ResponseTopic}");
                             if (ea.ApplicationMessage.Topic == this._sensorTopic)
                             {
                                 SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
@@ -136,13 +132,13 @@ namespace DCP_App.Services.Mqtt
                                 }
                                 else
                                 {
-                                    _logger.LogInformation($"Recied no sensor data on topic: {ea.ApplicationMessage.Topic}!");
+                                    _logger.LogDebug($"Consumer - Recied no sensor data on topic: {ea.ApplicationMessage.Topic}!");
                                 }
                             }
 
                             else if (ea.ApplicationMessage.Topic == this._availableTopic)
                             {
-                                _logger.LogInformation($"Consumer - Processing topic: {ea.ApplicationMessage.Topic}");
+                                _logger.LogDebug($"Consumer - Processing topic: {ea.ApplicationMessage.Topic}");
                                 PublishAvailableModel? publishAvailableModel = JsonConvert.DeserializeObject<PublishAvailableModel>(payload);
                                 if (publishAvailableModel != null)
                                 {
@@ -150,7 +146,7 @@ namespace DCP_App.Services.Mqtt
                                 }
                                 else
                                 {
-                                    _logger.LogInformation($"No client Id recied on topic {ea.ApplicationMessage.Topic}!");
+                                    _logger.LogDebug($"Consumer - No client Id recied on topic {ea.ApplicationMessage.Topic}!");
                                 }
                             }
 
@@ -163,7 +159,7 @@ namespace DCP_App.Services.Mqtt
                                 }
                                 else
                                 {
-                                    _logger.LogInformation($"Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
+                                    _logger.LogDebug($"Consumer - Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
                                 }
                             }
                         }
@@ -211,37 +207,37 @@ namespace DCP_App.Services.Mqtt
                         // Periodically check if the connection is alive, otherwise reconnect
                         if (!await _mqttClient.TryPingAsync())
                         {
-                            _logger.LogInformation("Attempting to connect to MQTT Broker...");
+                            _logger.LogInformation("Consumer - Attempting to connect to MQTT Broker...");
                             await _mqttClient.ConnectAsync(mqttClientOptions, shutdownToken);
 
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(sensorSubscribeOption, shutdownToken);
-                            _logger.LogInformation($"MQTT client subscribed to {_topic}.");
+                            _logger.LogInformation($"Consumer - MQTT client subscribed to {this._sensorTopic}.");
 
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(receiveSubscribeOption, shutdownToken);
-                            _logger.LogInformation($"MQTT client subscribed to {this._receiveTopic}.");
+                            _logger.LogInformation($"Consumer - MQTT client subscribed to {this._receiveTopic}.");
 
 
                             // Subscribe every time we connect, but keep using the same OptionsBuilder, to avoid subscribing more than once.
                             await _mqttClient.SubscribeAsync(availableSubscribeOption, shutdownToken);
-                            _logger.LogInformation($"MQTT client subscribed to {this._availableTopic}.");
+                            _logger.LogInformation($"Consumer - MQTT client subscribed to {this._availableTopic}.");
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "An error occurred during MQTT operation.");
+                        _logger.LogError(ex, "Consumer - An error occurred during MQTT operation.");
                     }
 
                     // Check the connection status every 5 seconds
                     await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
                 }
 
-                _logger.LogInformation("Cancellation requested. Exiting...");
+                _logger.LogInformation("Consumer - Cancellation requested. Exiting...");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Connection failed.");
+                _logger.LogError(ex, "Consumer - Connection failed.");
             }
             finally
             {
@@ -257,15 +253,12 @@ namespace DCP_App.Services.Mqtt
 
         private async Task RequestSensorData(string topic, string clientId, CancellationToken shutdownToken)
         {
-            _logger.LogInformation($"response topic {topic}");
             SensorEntity? sensor = this._influxDBService.GetLatestByClientId(clientId);
             RequestSensorDataModel requestSensorData = new RequestSensorDataModel();
             if ( sensor != null)
             {
                 requestSensorData.Timestamp = sensor.Timestamp != null ? (DateTimeOffset)sensor.Timestamp: new DateTimeOffset();
             }
-
-            _logger.LogInformation($"response topic {topic}");
 
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)

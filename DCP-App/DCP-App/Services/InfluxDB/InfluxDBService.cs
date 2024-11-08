@@ -1,19 +1,10 @@
-﻿using InfluxDB.Client.Writes;
-using InfluxDB.Client;
+﻿using InfluxDB.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DCP_App.Services.Mqtt;
 using DCP_App.Entities;
 using InfluxDB.Client.Linq;
 using InfluxDB.Client.Api.Domain;
-using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json.Linq;
-using System.Net.Sockets;
 using DCP_App.InfluxConverters;
 
 namespace DCP_App.Services.InfluxDB
@@ -57,23 +48,34 @@ namespace DCP_App.Services.InfluxDB
 
         public async Task WriteAsync(List<SensorEntity> sensorEntities)
         {
+            if(!await this._client.PingAsync())
+                _logger.LogWarning("InfluxDB - GetLatestByClientId: No DB connection...");
+
+            _logger.LogDebug("InfluxDB - ReadAll: Write");
             await this._client.GetWriteApiAsync(this._converter)
                 .WriteMeasurementsAsync(sensorEntities, WritePrecision.S);
+            _logger.LogDebug("InfluxDB - ReadAll: After");
         }
 
         public List<SensorEntity> ReadAll()
         {
+            IsConnected();
+            _logger.LogDebug("InfluxDB - ReadAll: Before query");
             var queryApi = this._client!.GetQueryApiSync(this._converter);
             //
             // Select ALL
             //
             var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
                         select s;
-            return query.ToList();
+            List<SensorEntity> result = query.ToList();
+            _logger.LogDebug("InfluxDB - ReadAll: After query");
+            return result;
         }
         
         public List<SensorEntity> ReadAfterTimestamp(DateTimeOffset timestamp)
         {
+            IsConnected();
+            _logger.LogDebug("InfluxDB - ReadAfterTimestamp: Before query");
             var queryApi = this._client!.GetQueryApiSync(this._converter);
             //
             // Select ALL
@@ -81,29 +83,34 @@ namespace DCP_App.Services.InfluxDB
             var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
                         where s.Timestamp > timestamp
                         select s;
-            return query.ToList();
+            List<SensorEntity> result = query.ToList();
+            _logger.LogDebug("InfluxDB - ReadAfterTimestamp: After query");
+            return result;
         }        
 
         public SensorEntity? GetLatestByClientId(string clientId)
         {
-            _logger.LogInformation("1");
-
+            IsConnected();
+            _logger.LogDebug("InfluxDB - GetLatestByClientId: Before query");
             var queryApi = this._client!.GetQueryApiSync(this._converter);
-            //
-            // Select ALL
-            //
-            _logger.LogInformation("2");
             var query = (from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
                         where s.DcpClientId == clientId
                         orderby s.Timestamp descending
                         select s).TakeLast(1);
-            _logger.LogInformation("3");
 
             SensorEntity? sensorEntity = query.ToList().FirstOrDefault();
-            _logger.LogInformation("4");
+            _logger.LogDebug("InfluxDB - GetLatestByClientId: After query");
             return query.ToList().FirstOrDefault();
         }
 
+        public bool IsConnected()
+        {
+            var connStatus = this._client.PingAsync();
+            connStatus.Wait();
+            if (!connStatus.Result)
+                _logger.LogWarning("InfluxDB - GetLatestByClientId: No DB connection...");
+            return connStatus.Result;
+        }
 
         ~InfluxDBService()
         {

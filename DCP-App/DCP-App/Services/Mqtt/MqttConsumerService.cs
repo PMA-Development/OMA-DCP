@@ -70,7 +70,7 @@ namespace DCP_App.Services.Mqtt
             this._sensorTopic = "telemetry";
             this._receiveTopic = $"dcp/client/{this._appClientId}/telemetry/receive";
             this._availableTopic = "dcp/telemetry/available";
-            this._forwardTopics = new List<string> { "device/inbound" };
+            this._forwardTopics = new List<string> { "device/inbound/" };
 
             this._providerEnabled = Convert.ToBoolean(config["MqttProvider:Enabled"]);
         }

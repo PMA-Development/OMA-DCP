@@ -134,4 +134,4 @@ _NCrunch*
 
 .vs/
 
-appsettings.json
+**/appsettings.json

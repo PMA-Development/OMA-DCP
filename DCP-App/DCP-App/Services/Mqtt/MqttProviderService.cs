@@ -71,7 +71,7 @@ namespace DCP_App.Services.Mqtt
 
             this._availableTopic = "dcp/telemetry/available";
 
-            this._forwardTopics = new List<string> { "device/outbound" };
+            this._forwardTopics = new List<string> { "device/outbound/" };
 
             if (int.TryParse(_config["MqttProvider:PublishDataAvailableSeconds"]!, out _))
             {

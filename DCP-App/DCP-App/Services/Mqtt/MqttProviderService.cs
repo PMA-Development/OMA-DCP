@@ -37,6 +37,8 @@ namespace DCP_App.Services.Mqtt
 
         private bool _publishBeacon = true;
 
+        private readonly int _publishDataAvailableSeconds;
+
         public MqttProviderService(ILogger<MqttProviderService> logger, IConfiguration config, IInfluxDBService InfluxDBService)
         {
             _logger = logger;
@@ -70,6 +72,15 @@ namespace DCP_App.Services.Mqtt
             this._availableTopic = "dcp/telemetry/available";
 
             this._forwardTopics = new List<string> { "device/outbound" };
+
+            if (int.TryParse(_config["MqttProvider:PublishDataAvailableSeconds"]!, out _))
+            {
+                this._publishDataAvailableSeconds = int.Parse(_config["MqttProvider:PublishDataAvailableSeconds"]!);
+            }
+            else
+            {
+                this._publishDataAvailableSeconds = 5;
+            }
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)
@@ -260,7 +271,7 @@ namespace DCP_App.Services.Mqtt
                 {
                     _logger.LogDebug($"Provider - Available: Client not connected!");
                 }
-                await Task.Delay(TimeSpan.FromSeconds(5), shutdownToken);
+                await Task.Delay(TimeSpan.FromSeconds(this._publishDataAvailableSeconds), shutdownToken);
             }
             
         }

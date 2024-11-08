@@ -4,6 +4,7 @@ using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using DCP_App.Services.InfluxDB;
 using DCP_App.Services.Mqtt;
+using System.Reflection;
 
 namespace DCP_App
 {
@@ -31,10 +32,12 @@ namespace DCP_App
 
             IConfiguration config = builder.Build();
 
+            // ClientId is not allowed to be empty!
+            if (config["ClientId"] == string.Empty)
+                config["ClientId"] = Guid.NewGuid().ToString();
+
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
                 .CreateLogger();
 
             Log.Logger.Information("Application Starting");
@@ -73,7 +76,7 @@ namespace DCP_App
             builder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
-                .AddUserSecrets<Program>()
+                .AddUserSecrets(Assembly.GetExecutingAssembly(), true)
                 .AddEnvironmentVariables();
         }
     }

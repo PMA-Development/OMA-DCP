@@ -3,23 +3,23 @@
   "WorkspaceRootPath": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Kristian\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Kristian\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttproviderservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|solutionrelative:dcp-app\\services\\mqtt\\mqttconsumerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C051DF7-5643-4027-B6F6-A056A008F8FA}|DCP-App\\DCP-App.csproj|c:\\users\\kristian\\source\\repos\\pma-development\\oma-dcp\\dcp-app\\dcp-app\\services\\forwardtopicqueues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -65,7 +65,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Document",
@@ -82,26 +82,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "MqttConsumerService.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "RelativeDocumentMoniker": "DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
               "RelativeToolTip": "DCP-App\\Services\\Mqtt\\MqttConsumerService.cs",
-              "ViewState": "AgIAAEAAAAAAAAAAAADgv1YAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAAO0AAAAAAAAAAAAYwDMAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T06:36:03.173Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "MqttProviderService.cs",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
               "RelativeDocumentMoniker": "DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
               "RelativeToolTip": "DCP-App\\Services\\Mqtt\\MqttProviderService.cs",
-              "ViewState": "AgIAAN0AAAAAAAAAAAAgwOkAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAGAAAAAAAAAAAAAYwFQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-06T16:06:17.992Z",
               "EditorCaption": ""
@@ -114,7 +114,7 @@
               "RelativeDocumentMoniker": "DCP-App\\Program.cs",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\Program.cs",
               "RelativeToolTip": "DCP-App\\Program.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAqwEAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAAAEEAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-05T11:08:08.273Z",
               "EditorCaption": ""
@@ -134,13 +134,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\appsettings.json",
               "RelativeDocumentMoniker": "DCP-App\\appsettings.json",
               "ToolTip": "C:\\Users\\Kristian\\source\\repos\\PMA-Development\\OMA-DCP\\DCP-App\\DCP-App\\appsettings.json",
               "RelativeToolTip": "DCP-App\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-11-05T11:52:49.497Z",
               "EditorCaption": ""
@@ -186,13 +186,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "secrets.json",
               "DocumentMoniker": "C:\\Users\\Kristian\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json",
               "ToolTip": "C:\\Users\\Kristian\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json",
               "RelativeToolTip": "..\\..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\UserSecrets\\aa33d37a-2916-49c4-8a92-42e594e5f4da\\secrets.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2024-11-08T08:10:02.143Z",
               "EditorCaption": ""

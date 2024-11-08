@@ -23,9 +23,6 @@ namespace DCP_App.Services.Mqtt
         private readonly string _username;
         private readonly string _password;
 
-        private readonly string _turbineId;
-        private readonly bool _isTurbine;
-
         private readonly int _concurrentProcesses;
 
         private readonly string _appClientId;
@@ -64,9 +61,6 @@ namespace DCP_App.Services.Mqtt
             {
                 _concurrentProcesses = 1;
             }
-
-            this._turbineId = _config["ClientId"]!;
-            this._isTurbine = Convert.ToBoolean(_config["IsTurbine"]!);
 
             this._appClientId = _config["ClientId"]!;
 
@@ -126,10 +120,7 @@ namespace DCP_App.Services.Mqtt
                                     {
                                         sensorEntity.Timestamp = DateTime.UtcNow;
                                     }
-                                    if (this._isTurbine)
-                                    {
-                                        sensorEntity.TurbineId = this._turbineId;
-                                    }
+                                    sensorEntity.TurbineId = this._appClientId;
                                     sensorEntity.DcpClientId = this._appClientId;
 
                                     await _influxDBService.WriteAsync(new List<SensorEntity> { sensorEntity });

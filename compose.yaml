@@ -7,7 +7,33 @@ services:
     depends_on:
       - emqx
       - influxdb
-    env_file: "DCP-App.env"
+    env_file:
+      - .env
+    environment:
+      - CLIENTID=""
+      # MQTT - Consumer
+      - MQTTCONSUMER__HOST="emqx"
+      - MQTTCONSUMER__PORT="1883"
+      - MQTTCONSUMER__CLIENTID="DCP-Consumer"
+      - MQTTCONSUMER__USERNAME="DCP-Consumer"
+      - MQTTCONSUMER__PASSWORD="DCP-Consumer"
+      - MQTTCONSUMER__CONCURRENTPROCESSES=1
+
+      # MQTT - Consumer
+      - MQTTPROVIDER__ENABLED=true
+      - MQTTPROVIDER__HOST="hostname"
+      - MQTTPROVIDER__PORT="1883"
+      - MQTTPROVIDER__CLIENTID="DCP-Provider"
+      - MQTTPROVIDER__USERNAME="DCP-Provider"
+      - MQTTPROVIDER__PASSWORD="DCP-Provider"
+      - MQTTPROVIDER__CONCURRENTPROCESSES=1
+      - MQTTPROVIDER__PUBLISHDATAAVAILABLESECONDS=5
+
+      # InfluxDB
+      - INFLUXDB__HOST=http://${DOCKER_INFLUXDB_INIT_HOST}:${DOCKER_INFLUXDB_INIT_PORT}
+      - INFLUXDB__TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+      - INFLUXDB__BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET}
+      - INFLUXDB__ORG=${DOCKER_INFLUXDB_INIT_ORG}
   
   emqx:
       image: emqx:latest
@@ -17,15 +43,15 @@ services:
         - "1883:1883"
       env_file: "EMQX.env"
       volumes:
-      - emqx-data:/opt/emqx/data
-      - emqx-log:/opt/emqx/log
+        - emqx-data:/opt/emqx/data
+        - emqx-log:/opt/emqx/log
   
   influxdb:
     image: influxdb:2.1.1
     volumes:
       - influxdb-storage:/var/lib/influxdb2:rw
     env_file:
-      - InfluxDB.env
+      - .env
     entrypoint: ["./entrypoint.sh"]
     restart: on-failure:10
     ports:

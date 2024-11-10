@@ -233,9 +233,13 @@ namespace DCP_App.Services.Mqtt
                 sensor.DcpClientId = this._appClientId;
             }
 
+            var jsonStr = JsonConvert.SerializeObject(sensors);
+            _logger.LogInformation(jsonStr);
+            _logger.LogInformation(topic);
+
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
-                .WithPayload(JsonConvert.SerializeObject(sensors))
+                .WithPayload(jsonStr)
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
                 .Build();
 

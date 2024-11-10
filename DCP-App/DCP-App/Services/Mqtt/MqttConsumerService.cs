@@ -201,7 +201,7 @@ namespace DCP_App.Services.Mqtt
                     .Build();
 
                 var mqttReceiveTopicFilter = new MqttTopicFilterBuilder()
-                    .WithTopic(this._sensorTopic)
+                    .WithTopic(this._receiveTopic)
                     .WithAtLeastOnceQoS()
                     .Build();
 
@@ -294,12 +294,9 @@ namespace DCP_App.Services.Mqtt
 
         private async Task RequestSensorData(string topic, string clientId, CancellationToken shutdownToken)
         {
-            SensorEntity? sensor = this._influxDBService.GetLatestByClientId(clientId);
+            DateTimeOffset timestamp = await this._influxDBService.GetLatestByClientId(clientId);
             RequestSensorDataModel requestSensorData = new RequestSensorDataModel();
-            if ( sensor != null)
-            {
-                requestSensorData.Timestamp = sensor.Timestamp != null ? (DateTimeOffset)sensor.Timestamp: new DateTimeOffset();
-            }
+            requestSensorData.Timestamp = timestamp;
 
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)

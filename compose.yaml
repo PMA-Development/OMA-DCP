@@ -1,5 +1,5 @@
 services:
-  dcp-app:
+  dcp:
     build: # "context" and "dockerfile" fields have to be under "build"
       context: ./DCP-App
       dockerfile: ./DCP-App/Dockerfile

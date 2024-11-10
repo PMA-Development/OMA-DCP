@@ -10,7 +10,6 @@
 		<UserSecretsId>aa33d37a-2916-49c4-8a92-42e594e5f4da</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="InfluxDB.Client.Flux" Version="4.18.0" />
 		<PackageReference Include="InfluxDB.Client.Linq" Version="4.18.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />

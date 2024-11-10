@@ -6,8 +6,6 @@ using DCP_App.Entities;
 using InfluxDB.Client.Linq;
 using InfluxDB.Client.Api.Domain;
 using DCP_App.InfluxConverters;
-using System.Net.Sockets;
-using InfluxDB.Client.Flux;
 using System;
 
 namespace DCP_App.Services.InfluxDB

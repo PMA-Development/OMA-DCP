@@ -36,7 +36,9 @@ Island -> HQ: Topic: dcp/client/{ClientId}/telemetry/receive
 
 ## DCP to DCP synchronization
 
-The communication uses QOS "1".
+The communication between the DCP instanses, uses QoS "1", we could have gone with all 3 of the levels, because a loss or duplication of a message, will not have any impact on the databases, it's only the network that will see the differencs in packages.
+
+Because the application is resilient for data dupication, we do not need to worry about that, and could just have gone with QoS "0".
 
 <img style="background-color:white" src="./docs/assets/sequence_diagrams/dcp-dcp_synchronization.svg" alt="DCP to DCP synchronization sequence diagram"/>
 
@@ -85,7 +87,8 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
     "Host": "http://localhost:8086",
     "Token": "", // Place in usersecrets or parse as Environment variables
     "Bucket": "Telemetry",
-    "Org": "OMA"
+    "Org": "OMA",
+    "RetensionDays": 300 // Default, this is used for querying data for synchronization between the databases.
   },
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console" ],

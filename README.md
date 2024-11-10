@@ -119,6 +119,36 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
   }
 }
 ```
+## Setting up Raspberry Pi
+
+- Download Raspberry Pi Imager
+- Install Raspberry OS Lite 64-bit
+- Open settings: ctrl+Shift+X
+- Setup Wi-Fi
+- Setup SSH
+- Setup a hostname
+
+## Installing Docker
+Follow this guide using apt: https://docs.docker.com/engine/install/debian/
+
+## Before starting the Docker compose stack
+### Edit the InfluxDB.env
+- Gengerate a token for DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: openssl rand -hex 32
+
+
+### Usefull commands:
+- Start stack: sudo docker compose up -d
+- Delete stack: sudo docker compose down -v
+- Restart stack: sudo docker compose restart
+- Get running containers: sudo docker ps -a
+- Container logs: sudo docker logs -f 
+
+
+### After starting
+After the stack is up
+- Go to the EMQX interface: https://hostname:18083
+- Create a new Auchentication database, just a build in file database, and do NOT set the clientId as the username, this will make the deployment more difficoult.
+- Create both the provider and the consumer, but remember the customer uses the MQTT broker hosted on the current device, where as the provider is connected to another MQTT broker
 
 ## Credits
 - [InfluxDB Script](https://github.com/alekece/tig-stack)

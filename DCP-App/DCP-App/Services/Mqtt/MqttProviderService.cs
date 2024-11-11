@@ -86,7 +86,7 @@ namespace DCP_App.Services.Mqtt
                 this._publishDataAvailableSeconds = 5;
             }
 
-            this._useTLS = !Convert.ToBoolean(this._config["MqttProvider:UseTLS"]);
+            this._useTLS = Convert.ToBoolean(this._config["MqttProvider:UseTLS"]);
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)

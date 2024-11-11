@@ -317,7 +317,7 @@ namespace DCP_App.Services.Mqtt
                     try
                     {
                         _logger.LogInformation("Consumer - Outbound: Sending outbound message");
-                        var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                        var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
                         await PulishMessage(msg, shutdownToken);
                     }
                     catch (Exception e)

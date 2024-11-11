@@ -301,9 +301,19 @@ namespace DCP_App.Services.Mqtt
             {
                 if (ForwardTopicQueues.Inbound.Count != 0)
                 {
-                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
-                    await PulishMessage(msg, shutdownToken);
+                    try
+                    {
+                        _logger.LogInformation("Provider - Inbound: Sending outbound message");
+                        var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                        await PulishMessage(msg, shutdownToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogInformation(e, "Provider - Error in Inbound: ");
+                        throw;
+                    }
                 }
+
             }
 
         }

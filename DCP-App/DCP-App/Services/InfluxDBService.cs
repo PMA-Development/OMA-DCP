@@ -1,14 +1,14 @@
 ﻿using InfluxDB.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using DCP_App.Services.Mqtt;
 using DCP_App.Entities;
 using InfluxDB.Client.Linq;
 using InfluxDB.Client.Api.Domain;
 using DCP_App.InfluxConverters;
 using System;
+using DCP_App.Services.Interfaces;
 
-namespace DCP_App.Services.InfluxDB
+namespace DCP_App.Services
 {
     public class InfluxDBService : IInfluxDBService
     {
@@ -30,41 +30,41 @@ namespace DCP_App.Services.InfluxDB
 
         public InfluxDBService(ILogger<MqttConsumerService> logger, IConfiguration config)
         {
-            this._logger = logger;
-            this._config = config;
+            _logger = logger;
+            _config = config;
 
-            this._token = config["InfluxDB:Token"]!;
-            this._host = config["InfluxDB:Host"]!;
-            this._bucket = config["InfluxDB:Bucket"]!;
-            this._org = config["InfluxDB:Org"]!;
+            _token = config["InfluxDB:Token"]!;
+            _host = config["InfluxDB:Host"]!;
+            _bucket = config["InfluxDB:Bucket"]!;
+            _org = config["InfluxDB:Org"]!;
 
-            this._options = new InfluxDBClientOptions(this._host)
+            _options = new InfluxDBClientOptions(_host)
             {
-                Token = this._token,
-                Org = this._org,
-                Bucket = this._bucket
+                Token = _token,
+                Org = _org,
+                Bucket = _bucket
             };
 
-            this._converter = new SensorEntityConverter();
-            this._client = new InfluxDBClient(this._options);
+            _converter = new SensorEntityConverter();
+            _client = new InfluxDBClient(_options);
 
             if (int.TryParse(_config["InfluxDB:RetensionDays"]!, out _))
-                this._retensionDays = int.Parse(_config["InfluxDB:RetensionDays"]!);
-            else 
-                this._retensionDays = -300; // defualt to -300
+                _retensionDays = int.Parse(_config["InfluxDB:RetensionDays"]!);
+            else
+                _retensionDays = -300; // defualt to -300
 
             // Make it to a negative number, because we need it to be negative for the start range.
-            if (this._retensionDays < 0)
-                this._retensionDays *= -1;
+            if (_retensionDays < 0)
+                _retensionDays *= -1;
         }
 
         public async Task WriteAsync(List<SensorEntity> sensorEntities)
         {
-            if(!await this._client.PingAsync())
+            if (!await _client.PingAsync())
                 _logger.LogWarning("InfluxDB - GetLatestByClientId: No DB connection...");
 
             _logger.LogDebug("InfluxDB - ReadAll: Write");
-            await this._client.GetWriteApiAsync(this._converter)
+            await _client.GetWriteApiAsync(_converter)
                 .WriteMeasurementsAsync(sensorEntities, WritePrecision.S);
             _logger.LogDebug("InfluxDB - ReadAll: After");
         }
@@ -73,29 +73,29 @@ namespace DCP_App.Services.InfluxDB
         {
             IsConnected();
             _logger.LogDebug("InfluxDB - ReadAll: Before query");
-            var queryApi = this._client!.GetQueryApiSync(this._converter);
+            var queryApi = _client!.GetQueryApiSync(_converter);
             //
             // Select ALL
             //
-            var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
+            var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(_bucket, _org, queryApi, _converter)
                         select s;
             List<SensorEntity> result = query.ToList();
             _logger.LogDebug("InfluxDB - ReadAll: After query");
             return result;
         }
-        
+
         public List<SensorEntity> ReadAfterTimestamp(DateTimeOffset timestamp)
         {
             IsConnected();
             _logger.LogDebug("InfluxDB - ReadAfterTimestamp: Before query");
 
 
-            var queryApi = this._client!.GetQueryApiSync(this._converter); ;
+            var queryApi = _client!.GetQueryApiSync(_converter); ;
 
             try
             {
                 _logger.LogInformation($"InfluxDB - ReadAfterTimestamp: Read from DatetimeOffset: {timestamp.ToString()}");
-                var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(this._bucket, this._org, queryApi, this._converter)
+                var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(_bucket, _org, queryApi, _converter)
                             where s.Timestamp > timestamp && s.Timestamp < DateTimeOffset.Now // All queries most have a start and stop timestamp, or else the query will fail!
                             select s;
 
@@ -108,22 +108,22 @@ namespace DCP_App.Services.InfluxDB
                 _logger.LogError(e, "InfluxDB - ReadAfterTimestamp: ReadAfterTimestamp");
                 throw;
             }
-        }        
+        }
 
-        public async Task<DateTimeOffset> GetLatestByClientId(string clientId)
+        public async Task<DateTimeOffset> GetLatestTimestampByClientId(string clientId)
         {
             IsConnected();
             _logger.LogDebug("InfluxDB - GetLatestByClientId: Before query");
 
 
-            var queryApi = this._client!.GetQueryApi();
-            var fluxQuery = $"from(bucket: \"{this._bucket}\")\n"
-                            + $" |> range(start: {this._retensionDays})"
-                            + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{this._measurement}\"))";
+            var queryApi = _client!.GetQueryApi();
+            var fluxQuery = $"from(bucket: \"{_bucket}\")\n"
+                            + $" |> range(start: {_retensionDays})"
+                            + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{_measurement}\"))";
 
             try
             {
-                var tables = await queryApi.QueryAsync(fluxQuery, this._org);
+                var tables = await queryApi.QueryAsync(fluxQuery, _org);
 
                 DateTimeOffset timestamp = DateTimeOffset.MinValue;
 
@@ -144,7 +144,7 @@ namespace DCP_App.Services.InfluxDB
 
         public bool IsConnected()
         {
-            var connStatus = this._client.PingAsync();
+            var connStatus = _client.PingAsync();
             connStatus.Wait();
             if (!connStatus.Result)
                 _logger.LogWarning("InfluxDB - IsConnected: No DB connection...");
@@ -153,7 +153,7 @@ namespace DCP_App.Services.InfluxDB
 
         ~InfluxDBService()
         {
-            this._client.Dispose();
+            _client.Dispose();
         }
     }
 }

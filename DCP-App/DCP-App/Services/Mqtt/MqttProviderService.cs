@@ -8,6 +8,8 @@ using DCP_App.Services.InfluxDB;
 using DCP_App.Entities;
 using MQTTnet.Server;
 using DCP_App.Models;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DCP_App.Services.Mqtt
 {
@@ -38,6 +40,8 @@ namespace DCP_App.Services.Mqtt
         private bool _publishBeacon = true;
 
         private readonly int _publishDataAvailableSeconds;
+
+        private readonly bool _useTLS;
 
         public MqttProviderService(ILogger<MqttProviderService> logger, IConfiguration config, IInfluxDBService InfluxDBService)
         {
@@ -81,6 +85,8 @@ namespace DCP_App.Services.Mqtt
             {
                 this._publishDataAvailableSeconds = 5;
             }
+
+            this._useTLS = !Convert.ToBoolean(this._config["MqttProvider:UseTLS"]);
         }
 
         public async Task StartWorker(CancellationToken shutdownToken)
@@ -100,13 +106,22 @@ namespace DCP_App.Services.Mqtt
 
             try
             {
-                var mqttClientOptions = new MqttClientOptionsBuilder()
+                var mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
                     .WithTcpServer(_host, _port) // MQTT broker address and port
                     .WithCredentials(_username, _password) // Set username and password
                     .WithClientId(_clientId)
-                    .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V500)
-                    //.WithCleanSession()
-                    .Build();
+                    .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V500);
+
+                if (this._useTLS)
+                {
+                    mqttClientOptionsBuilder.WithTlsOptions(
+                    o => o.WithCertificateValidationHandler(
+                        // The used public broker sometimes has invalid certificates. This sample accepts all
+                        // certificates. This should not be used in live environments.
+                        _ => true));
+                }
+
+                var mqttClientOptions = mqttClientOptionsBuilder.Build();
 
                 _mqttClient.ApplicationMessageReceivedAsync += async ea =>
                 {

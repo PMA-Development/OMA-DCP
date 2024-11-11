@@ -28,6 +28,7 @@ services:
       - MQTTPROVIDER__PASSWORD=DCP-Provider
       - MQTTPROVIDER__CONCURRENTPROCESSES=1
       - MQTTPROVIDER__PUBLISHDATAAVAILABLESECONDS=5
+      - MQTTPROVIDER__USETLS=false
 
       # InfluxDB
       - INFLUXDB__HOST=http://${DOCKER_INFLUXDB_INIT_HOST}:8086
@@ -40,8 +41,8 @@ services:
       image: emqx:latest
       restart: always
       ports:
-        - "28083:18083"
-        - "18830:1883"
+        - "18083:18083"
+        - "1883:1883"
       volumes:
         - emqx-data:/opt/emqx/data
         - emqx-log:/opt/emqx/log

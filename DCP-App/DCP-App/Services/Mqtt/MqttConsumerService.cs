@@ -314,8 +314,17 @@ namespace DCP_App.Services.Mqtt
             {
                 if (ForwardTopicQueues.Outbound.Count != 0)
                 {
-                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
-                    await PulishMessage(msg, shutdownToken);
+                    try
+                    {
+                        _logger.LogInformation("Consumer - Outbound: Sending outbound message");
+                        var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
+                        await PulishMessage(msg, shutdownToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogInformation(e, "Consumer - Error in Outbound: ");
+                        throw;
+                    }
                 }
             }
 

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using MQTTnet.Client;
 using MQTTnet;
 using System.Text;
-using MQTTnet.Packets;
 
 namespace DCP_App.Services.Abstracts
 {

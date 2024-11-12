@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using DCP_App.Services.Interfaces;
 using DCP_App.Services;
-using DCP_App.Utils;
 
 namespace DCP_App
 {
@@ -40,9 +39,6 @@ namespace DCP_App
 
             Log.Logger.Information("Application Starting");
 
-            DeviceInfo.Id = config.GetValue<string>("ClientId")!;
-            DeviceInfo.TurbineId = config.GetValue<string>("ClientId")!;
-
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
@@ -55,6 +51,8 @@ namespace DCP_App
                 .UseSerilog()
                 .Build();
 
+            // Start the services, where the services will run forever.
+            // The services are designed as Tasks, because a background service is not designed to run the entire lifetime of the application.
             host.Services.GetService<MqttConsumerService>()!.Run();
             host.Services.GetService<MqttProviderService>()!.Run();
 

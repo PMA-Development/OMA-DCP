@@ -1,10 +1,8 @@
 ﻿using MQTTnet.Client;
 using MQTTnet;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using DCP_App.Entities;
-using MQTTnet.Server;
 using DCP_App.Models;
 using MQTTnet.Packets;
 using DCP_App.Services.Interfaces;

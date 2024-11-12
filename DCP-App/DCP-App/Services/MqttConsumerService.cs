@@ -5,10 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using DCP_App.Entities;
 using DCP_App.Models;
-using MQTTnet.Server;
 using DCP_App.Services.Interfaces;
 using DCP_App.Utils;
-using System.Threading;
 using DCP_App.Services.Abstracts;
 using MQTTnet.Packets;
 
@@ -124,12 +122,8 @@ namespace DCP_App.Services
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(ea.ApplicationMessage.Topic)
                 .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
-                .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce);
 
-            if (ea.ApplicationMessage.ResponseTopic != string.Empty)
-            {
-                applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
-            }
             ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
         }
 

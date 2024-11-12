@@ -11,6 +11,7 @@ services:
       - .env
     environment:
       - CLIENTID=185c4bb4-4aff-4d02-bb4c-46bf9fc482bf
+      - CLIENTTYPE=Turbine
       # MQTT - Consumer
       - MQTTCONSUMER__HOST=emqx
       - MQTTCONSUMER__PORT=1883

@@ -39,93 +39,117 @@ namespace DCP_App.Services
             _ = Task.Run(() => ProcessForwardMessageQueue());
         }
 
+        #region On Topic
         internal override async Task OnTopic(MqttApplicationMessageReceivedEventArgs ea, string payload)
         {
             if (ea.ApplicationMessage.Topic == _mqttSensorTopic)
-            {
-                SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
-
-                if (sensorEntity != null)
-                {
-                    if (!sensorEntity.Timestamp.HasValue)
-                    {
-                        sensorEntity.Timestamp = DateTime.UtcNow;
-                    }
-                    sensorEntity.TurbineId = _clientId;
-                    sensorEntity.DcpClientId = _clientId;
-
-                    await _influxDBService.WriteAsync(new List<SensorEntity> { sensorEntity });
-                }
-                else
-                {
-                    _logger.Debug($"Consumer - Recied no sensor data on topic: {ea.ApplicationMessage.Topic}!");
-                }
-            }
+                await OnTopicSensor(ea, payload);
 
             else if (ea.ApplicationMessage.Topic == _mqttAvailableTopic)
-            {
-                _logger.Debug($"Consumer - Processing topic: {ea.ApplicationMessage.Topic}");
-                TelemetryAvailableModel? telemetryAvailableModel = JsonConvert.DeserializeObject<TelemetryAvailableModel>(payload);
-                if (telemetryAvailableModel != null)
-                {
-                    RequestSensorData(ea.ApplicationMessage.ResponseTopic, telemetryAvailableModel.ClientId).Wait();
-                }
-                else
-                {
-                    _logger.Debug($"Consumer - No client Id recied on topic {ea.ApplicationMessage.Topic}!");
-                }
-            }
+                await OnTopicTelemetryAvailable(ea, payload);
 
             else if (ea.ApplicationMessage.Topic == _mqttReceiveTopic)
-            {
-                List<SensorEntity>? sensorEntities = JsonConvert.DeserializeObject<List<SensorEntity>>(payload);
-                if (sensorEntities != null)
-                {
-                    await _influxDBService.WriteAsync(sensorEntities);
-                }
-                else
-                {
-                    _logger.Debug($"Consumer - Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
-                }
-            }
+                await OnTopicTelemetryReceive(ea, payload);
 
             else if (_mqttForwardTopics.Any(t => ea.ApplicationMessage.Topic == "device/inbound/beacon") && _providerEnabled)
-            {
-                _logger.Debug($"Consumer - Inbound: Queuing {ea.ApplicationMessage.Topic}");
-                var applicationMessage = new MqttApplicationMessageBuilder()
-                    .WithTopic(ea.ApplicationMessage.Topic)
-                    .WithPayload(payload)
-                    .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
-
-                if (ea.ApplicationMessage.ResponseTopic != string.Empty)
-                {
-                    applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
-                }
-                ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
-            }
+                OnTopicInboundBeacon(ea, payload);
 
             else if (_mqttForwardTopics.Any(t => ea.ApplicationMessage.Topic.StartsWith(t)) && _providerEnabled)
-            {
-                _logger.Debug($"Consumer - Inbound: Queuing {ea.ApplicationMessage.Topic}");
-                var applicationMessage = new MqttApplicationMessageBuilder()
-                    .WithTopic(ea.ApplicationMessage.Topic)
-                    .WithPayload(payload)
-                    .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
-
-                if (ea.ApplicationMessage.ResponseTopic != string.Empty)
-                {
-                    applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
-                }
-                ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
-            }
+                OnTopicInboundForward(ea, payload);
 
             else
+                _logger.Debug($"Unknown topic {ea.ApplicationMessage.Topic}!");
+        }
+
+        private async Task OnTopicSensor(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            SensorEntity? sensorEntity = JsonConvert.DeserializeObject<SensorEntity>(payload);
+
+            if (sensorEntity != null)
             {
-                _logger.Debug($"Consumer - Unknown topic {ea.ApplicationMessage.Topic}!");
+                if (!sensorEntity.Timestamp.HasValue)
+                {
+                    sensorEntity.Timestamp = DateTime.UtcNow;
+                }
+                sensorEntity.TurbineId = _clientId;
+                sensorEntity.DcpClientId = _clientId;
+
+                await _influxDBService.WriteAsync(new List<SensorEntity> { sensorEntity });
+            }
+            else
+            {
+                _logger.Debug($"Received no sensor data on topic: {ea.ApplicationMessage.Topic}!");
             }
         }
 
-        private async Task RequestSensorData(string topic, string clientId)
+        private async Task OnTopicTelemetryAvailable(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            _logger.Debug($"Processing topic: {ea.ApplicationMessage.Topic}");
+            TelemetryAvailableModel? telemetryAvailableModel = JsonConvert.DeserializeObject<TelemetryAvailableModel>(payload);
+            if (telemetryAvailableModel != null)
+            {
+                await PublishRequestSensorData(ea.ApplicationMessage.ResponseTopic, telemetryAvailableModel.ClientId);
+            }
+            else
+            {
+                _logger.Debug($"No client Id recied on topic {ea.ApplicationMessage.Topic}!");
+            }
+        }
+
+        private async Task OnTopicTelemetryReceive(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            List<SensorEntity>? sensorEntities = JsonConvert.DeserializeObject<List<SensorEntity>>(payload);
+            if (sensorEntities != null)
+                await _influxDBService.WriteAsync(sensorEntities);
+            else
+                _logger.Debug($"Recieved no sensor data on topic {ea.ApplicationMessage.Topic}!");
+        }
+
+        private void OnTopicInboundBeacon(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            DeviceBeaconModel? deviceBeaconModel = JsonConvert.DeserializeObject<DeviceBeaconModel>(payload);
+            if (deviceBeaconModel == null)
+            {
+                _logger.Debug($"Inbound Beacon reveived but unable to intercept");
+                return;
+            }
+
+            _logger.Debug($"Inbound Beacon reveived and intercepted");
+
+            if (_clientType.ToLower() == "turbine")
+                deviceBeaconModel.TurbineId = _clientId;
+            else if (_clientType.ToLower() == "island")
+                deviceBeaconModel.IslandId = _clientId;
+            
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(ea.ApplicationMessage.Topic)
+                .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
+                .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+
+            if (ea.ApplicationMessage.ResponseTopic != string.Empty)
+            {
+                applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
+            }
+            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+        }
+
+        private void OnTopicInboundForward(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            _logger.Debug($"Inbound: Queuing {ea.ApplicationMessage.Topic}");
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(ea.ApplicationMessage.Topic)
+                .WithPayload(payload)
+                .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+
+            if (ea.ApplicationMessage.ResponseTopic != string.Empty)
+            {
+                applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
+            }
+            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+        }
+        #endregion
+
+        private async Task PublishRequestSensorData(string topic, string clientId)
         {
             DateTimeOffset timestamp = await _influxDBService.GetLatestTimestampByClientId(clientId);
             RequestSensorDataModel requestSensorData = new RequestSensorDataModel();

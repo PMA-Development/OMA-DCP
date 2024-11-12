@@ -2,11 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using MQTTnet.Client;
 using MQTTnet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using MQTTnet.Packets;
 
 namespace DCP_App.Services.Abstracts
@@ -21,6 +17,7 @@ namespace DCP_App.Services.Abstracts
 
         // Application settings
         internal readonly string _clientId;
+        internal readonly string _clientType;
         internal readonly SemaphoreSlim _concurrentProcesses;
         internal readonly int _publishDataAvailableSeconds;
 
@@ -44,6 +41,7 @@ namespace DCP_App.Services.Abstracts
 
             // Application settings
             _clientId = _config.GetValue<string>("ClientId")!;
+            _clientType = _config.GetValue<string>("ClientType")!;
             _concurrentProcesses = new SemaphoreSlim(_config.GetValue(serviceType + ":ConcurrentProcesses", 1));
             _publishDataAvailableSeconds = _config.GetValue(serviceType + ":PublishDataAvailableSeconds", 5);
 
@@ -69,7 +67,14 @@ namespace DCP_App.Services.Abstracts
                 {
                     // Wait for an available process, before creating a new Task.
                     await _concurrentProcesses.WaitAsync(_cancellationToken).ConfigureAwait(false);
-                    _ = Task.Run(async () => await ProcessApplicationMessageReceivedAsync(ea), _cancellationToken);
+                    try
+                    {
+                        _ = Task.Run(async () => await ProcessApplicationMessageReceivedAsync(ea), _cancellationToken);
+                    }
+                    finally
+                    {
+                        _concurrentProcesses.Release();
+                    }
                 };
 
                 await HandleMqttConnection();
@@ -84,43 +89,15 @@ namespace DCP_App.Services.Abstracts
 
         private async Task ProcessApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs ea)
         {
-            try
-            {
-                string? payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
-                _logger.Debug($"Provider - Received message \"{payload}\", topic \"{ea.ApplicationMessage.Topic}\", ResponseTopic: \"{ea.ApplicationMessage.ResponseTopic}\"");
+            string? payload = Encoding.UTF8.GetString(ea.ApplicationMessage.PayloadSegment);
+            _logger.Debug($"Received message \"{payload}\", topic \"{ea.ApplicationMessage.Topic}\", ResponseTopic: \"{ea.ApplicationMessage.ResponseTopic}\"");
 
-                await OnTopic(ea, payload);
-            }
-            finally
-            {
-                _concurrentProcesses.Release();
-            }
+            await OnTopic(ea, payload);
         }
 
-        internal virtual async Task OnTopic(MqttApplicationMessageReceivedEventArgs ea, string payload)
-        {
-            return;
-        }
+        internal abstract Task OnTopic(MqttApplicationMessageReceivedEventArgs ea, string payload);
 
-        internal virtual List<MqttClientSubscribeOptions> GetSubScriptionOptions()
-        {
-            List<MqttClientSubscribeOptions> subscribeOptions = new List<MqttClientSubscribeOptions>();
-
-            foreach (string forwardTopic in _mqttForwardTopics)
-            {
-
-                MqttTopicFilter? forwardTopicFilter = new MqttTopicFilterBuilder()
-                .WithTopic(forwardTopic + "#") // Add multilelvel wildcard, to subscribe to all levels
-                .WithAtLeastOnceQoS()
-                .Build();
-
-                subscribeOptions.Add(_mqttFactory.CreateSubscribeOptionsBuilder()
-                    .WithTopicFilter(forwardTopicFilter)
-                    .Build());
-            }
-
-            return subscribeOptions;
-        }
+        internal abstract List<MqttClientSubscribeOptions> GetSubScriptionOptions();
 
         private async Task HandleMqttConnection()
         {
@@ -143,6 +120,9 @@ namespace DCP_App.Services.Abstracts
                             await _mqttClient.SubscribeAsync(subscribeOption, _cancellationToken);
                             _logger.Information($"MQTT client subscribed to topic: {subscribeOption}.");
                         }
+
+                        // Method to override.
+                        OnConnect();
                     }
                 }
                 catch (Exception ex)
@@ -153,6 +133,11 @@ namespace DCP_App.Services.Abstracts
                 // Check the connection status every 5 seconds
                 await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
             }
+        }
+
+        internal virtual void OnConnect()
+        {
+
         }
 
         public async Task PulishMessage(MqttApplicationMessage? msg)

@@ -17,6 +17,8 @@ namespace DCP_App.Services
     {
         internal override Serilog.ILogger _logger => Serilog.Log.ForContext<MqttProviderService>();
         internal string _mqttRequestTopic;
+        internal string _mqttPingTopic = "device/outbound/ping";
+        internal string _mqttBeaconTopic = "device/ínbound/beacon";
 
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {
@@ -31,6 +33,13 @@ namespace DCP_App.Services
                 _ = Task.Run(async () => await PublishDataAvailable());
                 _ = Task.Run(async () => await ProcessForwardMessageQueue());
             }
+        }
+
+        internal override void OnConnect()
+        {
+            base.OnConnect();
+            // Do a beacon on connect.
+            PublishBeacon();
         }
 
         private async Task PublishSensorData(string topic, DateTimeOffset timestamp)
@@ -113,15 +122,19 @@ namespace DCP_App.Services
 
         }
 
-        //private async Task PublishDeviceBeacon()
-        //{
-        //    var applicationMessage = new MqttApplicationMessageBuilder()
-        //                    .WithTopic(this._mqttAvailableTopic)
-        //                    .WithResponseTopic(this._mqttRequestTopic)
-        //                    .WithPayload(JsonConvert.SerializeObject(publishAvailableModel))
-        //                    .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-        //                    .Build();
-        //}
+        private void OnTopicOutboundPing(MqttApplicationMessageReceivedEventArgs ea, string payload)
+        {
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(ea.ApplicationMessage.Topic)
+                .WithPayload(JsonConvert.SerializeObject(payload))
+                .WithQualityOfServiceLevel(ea.ApplicationMessage.QualityOfServiceLevel);
+
+            if (ea.ApplicationMessage.ResponseTopic != string.Empty)
+            {
+                applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
+            }
+            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+        }
 
         internal override async Task OnTopic(MqttApplicationMessageReceivedEventArgs ea, string payload)
         {
@@ -150,7 +163,13 @@ namespace DCP_App.Services
 
         private void OnTopicForward(string? payload, MqttApplicationMessageReceivedEventArgs ea)
         {
-            _logger.Debug($"Provider - Outbound: Queuing {ea.ApplicationMessage.Topic}");
+            _logger.Debug($"Outbound: Queuing {ea.ApplicationMessage.Topic}");
+            // Publish Ping inbound, and forward message afterwards.
+            if (ea.ApplicationMessage.Topic == _mqttPingTopic)
+            {
+                PublishBeacon();
+            }
+            
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(ea.ApplicationMessage.Topic)
                 .WithPayload(payload)
@@ -161,6 +180,24 @@ namespace DCP_App.Services
                 applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
             }
             ForwardTopicQueues.Outbound.Enqueue(applicationMessage);
+        }
+
+        private void PublishBeacon()
+        {
+            DeviceBeaconModel deviceBeaconModel = new DeviceBeaconModel { Id=_clientId, Type=_clientType };
+
+            if (_clientType.ToLower() == "turbine")
+                deviceBeaconModel.TurbineId = _clientId;
+            else if (_clientType.ToLower() == "island")
+                deviceBeaconModel.IslandId = _clientId;
+
+            _logger.Debug($"Publishing Beacon");
+            var applicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(_mqttBeaconTopic)
+                .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
+                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce);
+
+            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
         }
 
         internal override List<MqttClientSubscribeOptions> GetSubScriptionOptions()

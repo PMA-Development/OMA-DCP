@@ -10,9 +10,9 @@ namespace DCP_App.Models
     {
         public string Id { get; set; } = "";
         public string Type { get; set; } = "DCP";
+        public int CollectionInterval { get; set; }
         public string State { get; set; } = "On";
         public string TurbineId { get; set; } = "";
         public string IslandId { get; set; } = "";
-        public List<string> Actions { get; set; } = new List<string>();
     }
 }

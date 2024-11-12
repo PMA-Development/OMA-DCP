@@ -7,10 +7,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<UserSecretsId>aa33d37a-2916-49c4-8a92-42e594e5f4da</UserSecretsId>
+		<UserSecretsId>f1276d31-4384-4d33-81a4-903dc787fd06</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="InfluxDB.Client.Linq" Version="4.18.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
@@ -21,6 +22,9 @@
 		<PackageReference Include="InfluxDB.Client" Version="4.18.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Update="appsettings.Development.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

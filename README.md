@@ -64,37 +64,45 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
 ## appsettings.json
 ```JSON
 {
-  "ClientId": "", // This is the unique application ID, and is used for identifying the application on the network. Overriden with guid if left blank
+  "ClientId": "", // This is the unique application ID, and is used for identifying the application on the network.
+  "ClientType": "Turbine", // "Turbine", "Island", "DCP"
   "MqttConsumer": {
-    "Host": "127.0.0.1",
+    "Host": "localhost",
     "Port": 1883,
-    "ClientId": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
-    "Username": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
-    "Password": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
-    "ConcurrentProcesses": 1 // This is how many concurrent MQTT subscribed topics, that is allowed to consume messages at once. Keep it lower than the CPU cores available on the system.
+    "UseTLS": false,
+    "ClientId": "", // MQTT Broker ClientId
+    "Username": "", // MQTT Broker Username
+    "Password": "", // MQTT Broker Password
+    "ConcurrentProcesses": 1 // This is how many concurrent MQTT received topic, that is allowed to be processed at once. Keep it lower than the CPU cores available on the system, and substract the Provider count.
   },
   "MqttProvider": {
     "Enabled": true, // Disable the provider, if the provider is not needed. This is used at the last collection point.
-    "Host": "127.0.0.1",
-    "Port": 1883,
-    "ClientId": "", // MQTT Broker ClientId - Place in usersecrets or parse as Environment variables
-    "Username": "", // Place in usersecrets or parse as Environment variables
-    "Password": "", // Place in usersecrets or parse as Environment variables
-    "ConcurrentProcesses": 1, // This is how many concurrent MQTT subscribed topics, that is allowed to consume messages at once. Keep it lower than the CPU cores available on the system.
-    "PublishDataAvailableSeconds": 5 // How often the it should announce data is available for consumers.
+    "UseTLS": false,
+    "Host": "localhost",
+    "Port": 18830,
+    "ClientId": "", // MQTT Broker ClientId
+    "Username": "", // MQTT Broker Username
+    "Password": "", // MQTT Broker Password
+    "ConcurrentProcesses": 1, // This is how many concurrent MQTT received topic, that is allowed to be processed at once. Keep it lower than the CPU cores available on the system, and substract the cunsomer count.
+    "PublishDataAvailableSeconds": 5 // How often the it should announce telemetry data is available for consumers.
   },
   "InfluxDB": {
     "Host": "http://localhost:8086",
-    "Token": "", // Place in usersecrets or parse as Environment variables
+    "Token": "",
     "Bucket": "Telemetry",
     "Org": "OMA",
-    "RetensionDays": 300 // Default, this is used for querying data for synchronization between the databases.
+    "RetensionDays": 300
   },
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console" ],
     "MinimumLevel": "Debug",
     "WriteTo": [
-      { "Name": "Console" }
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level} - {SourceContext}] {Message}{NewLine}{Exception}"
+        }
+      }
     ],
     "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
     "Properties": {
@@ -104,24 +112,12 @@ DCP - Provider -> DCP - Consumer: Topic: dcp/client/{ClientId}/telemetry/receive
 }
 ```
 
-## User Secrets
-```JSON
-{
-  "MqttConsumer": {
-    "ClientId": "",
-    "Username": "",
-    "Password": ""
-  },
-  "MqttProvider": {
-    "ClientId": "",
-    "Username": "",
-    "Password": ""
-  },
-  "InfluxDB": {
-    "Token": "",
-  }
-}
-```
+## User usersecrets in develoment
+C# Console applications does not set an environment variable as default, and usersecrets is only loaded in a development environment.
+
+To set the environment to development, you have to configure the debug properties, and add environment variable: DOTNET_ENVIRONMENT="Development"
+
+
 ## Setting up Raspberry Pi
 
 - Download Raspberry Pi Imager

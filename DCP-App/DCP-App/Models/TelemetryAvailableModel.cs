@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DCP_App.Models
 {
-    public class PublishAvailableModel
+    public class TelemetryAvailableModel
     {
         public required string ClientId { get; set; }
     }

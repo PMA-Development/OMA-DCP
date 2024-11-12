@@ -1,7 +1,7 @@
 ﻿using DCP_App.Models;
 using MQTTnet;
 
-namespace DCP_App.Services
+namespace DCP_App.Utils
 {
     public static class ForwardTopicQueues
     {

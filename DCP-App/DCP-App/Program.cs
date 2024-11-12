@@ -2,20 +2,17 @@
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
-using DCP_App.Services.InfluxDB;
-using DCP_App.Services.Mqtt;
 using System.Reflection;
+using DCP_App.Services.Interfaces;
+using DCP_App.Services;
 
 namespace DCP_App
 {
     internal class Program
     {
+        private static readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         static void Main(string[] args)
         {
-            // Define the cancellation token.
-            CancellationTokenSource cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
-
             Console.CancelKeyPress += (sender, e) =>
             {
                 // We'll stop the process manually by using the CancellationToken
@@ -24,7 +21,7 @@ namespace DCP_App
                 // Change the state of the CancellationToken to "Canceled"
                 // - Set the IsCancellationRequested property to true
                 // - Call the registered callbacks
-                cts.Cancel();
+                _cancellationTokenSource.Cancel();
             };
 
             ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -33,8 +30,8 @@ namespace DCP_App
             IConfiguration config = builder.Build();
 
             // ClientId is not allowed to be empty!
-            if (config["ClientId"] == string.Empty)
-                config["ClientId"] = Guid.NewGuid().ToString();
+            if (config.GetValue<string>("ClientId", string.Empty) == string.Empty)
+                throw new ArgumentException("Missing ClientId, please provide a ClientId!");
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(config)
@@ -45,29 +42,22 @@ namespace DCP_App
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddSingleton<MqttConsumerService, MqttConsumerService>();
-                    services.AddSingleton<MqttProviderService, MqttProviderService>();
+                    services.AddSingleton(_cancellationTokenSource);
+                    services.AddSingleton<MqttConsumerService>();
+                    services.AddSingleton<MqttProviderService>();
 
                     services.AddSingleton<IInfluxDBService, InfluxDBService>();
                 })
                 .UseSerilog()
                 .Build();
 
-            var mqttConsumerClient = host.Services.GetService<MqttConsumerService>();
-
-            if (mqttConsumerClient != null ) 
-                _ = mqttConsumerClient.StartWorker(token);
-
-            // Do not run the provider client, if the provider is not enabled
-            if (Convert.ToBoolean(config["MqttProvider:Enabled"]))
-            {
-                var mqttProviderClient = host.Services.GetService<MqttProviderService>();
-                if (mqttProviderClient != null)
-                    _ = mqttProviderClient.StartWorker(token);
-            }
+            // Start the services, where the services will run forever.
+            // The services are designed as Tasks, because a background service is not designed to run the entire lifetime of the application.
+            host.Services.GetService<MqttConsumerService>()!.Run();
+            host.Services.GetService<MqttProviderService>()!.Run();
 
             // Keep the applikation running until cancelled.
-            while (!token.IsCancellationRequested) { };
+            while (!_cancellationTokenSource.Token.IsCancellationRequested) { };
 
         }
 

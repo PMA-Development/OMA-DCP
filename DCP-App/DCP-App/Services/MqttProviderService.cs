@@ -21,6 +21,7 @@ namespace DCP_App.Services
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {
             _mqttRequestTopic = $"dcp/client/{_clientId}/telemetry/request";
+            _mqttForwardTopics.Add("device/outbound/");
         }
 
         public override void Run()
@@ -30,6 +31,10 @@ namespace DCP_App.Services
                 _ = Task.Run(async () => await StartWorker(), _cancellationToken);
                 _ = Task.Run(async () => await PublishDataAvailable());
                 _ = Task.Run(async () => await ProcessForwardMessageQueue());
+            }
+            else if (_config.GetValue<bool>("MqttProvider:ForwardOnly"))
+            {
+                _ = Task.Run(async () => await StartWorker(), _cancellationToken);
             }
         }
 

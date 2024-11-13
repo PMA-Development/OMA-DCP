@@ -16,7 +16,7 @@ namespace DCP_App.Services
         internal override Serilog.ILogger _logger => Serilog.Log.ForContext<MqttProviderService>();
         internal string _mqttRequestTopic;
         internal string _mqttPingTopic = "device/outbound/ping";
-        internal string _mqttBeaconTopic = "device/ínbound/beacon";
+        internal string _mqttBeaconTopic = "device/inbound/beacon";
 
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {

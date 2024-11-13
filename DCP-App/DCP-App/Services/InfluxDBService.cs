@@ -5,6 +5,7 @@ using InfluxDB.Client.Linq;
 using InfluxDB.Client.Api.Domain;
 using DCP_App.InfluxConverters;
 using DCP_App.Services.Interfaces;
+using System.Reactive;
 
 namespace DCP_App.Services
 {
@@ -54,40 +55,52 @@ namespace DCP_App.Services
 
         public async Task WriteAsync(List<SensorEntity> sensorEntities)
         {
-            if (!await _client.PingAsync())
-                _logger.Warning("InfluxDB - GetLatestByClientId: No DB connection...");
+            IsConnected();
 
             _logger.Debug("InfluxDB - ReadAll: Write");
-            await _client.GetWriteApiAsync(_converter)
-                .WriteMeasurementsAsync(sensorEntities, WritePrecision.S);
-            _logger.Debug("InfluxDB - ReadAll: After");
-        }
+            try { 
+                await _client.GetWriteApiAsync(_converter)
+                    .WriteMeasurementsAsync(sensorEntities, WritePrecision.S);
+                _logger.Debug("InfluxDB - ReadAll: After");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "InfluxDB - GetLatestByClientId: ");
+                throw;
+            }
+}
 
         public List<SensorEntity> ReadAll()
         {
             IsConnected();
             _logger.Debug("InfluxDB - ReadAll: Before query");
-            var queryApi = _client!.GetQueryApiSync(_converter);
-            //
-            // Select ALL
-            //
-            var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(_bucket, _org, queryApi, _converter)
-                        select s;
-            List<SensorEntity> result = query.ToList();
-            _logger.Debug("InfluxDB - ReadAll: After query");
-            return result;
-        }
+            try { 
+                var queryApi = _client!.GetQueryApiSync(_converter);
+                //
+                // Select ALL
+                //
+                var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(_bucket, _org, queryApi, _converter)
+                            select s;
+                List<SensorEntity> result = query.ToList();
+                _logger.Debug("InfluxDB - ReadAll: After query");
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "InfluxDB - GetLatestByClientId: ");
+                throw;
+            }
+}
 
         public List<SensorEntity> ReadAfterTimestamp(DateTimeOffset timestamp)
         {
             IsConnected();
             _logger.Debug("InfluxDB - ReadAfterTimestamp: Before query");
 
-
-            var queryApi = _client!.GetQueryApiSync(_converter); ;
-
             try
             {
+                var queryApi = _client!.GetQueryApiSync(_converter);
+
                 _logger.Information($"InfluxDB - ReadAfterTimestamp: Read from DatetimeOffset: {timestamp.ToString()}");
                 var query = from s in InfluxDBQueryable<SensorEntity>.Queryable(_bucket, _org, queryApi, _converter)
                             where s.Timestamp > timestamp && s.Timestamp < DateTimeOffset.Now // All queries most have a start and stop timestamp, or else the query will fail!
@@ -109,14 +122,13 @@ namespace DCP_App.Services
             IsConnected();
             _logger.Debug("InfluxDB - GetLatestByClientId: Before query");
 
-
-            var queryApi = _client!.GetQueryApi();
-            var fluxQuery = $"from(bucket: \"{_bucket}\")\n"
-                            + $" |> range(start: {_retensionDays})"
-                            + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{_measurement}\"))";
-
             try
             {
+                var queryApi = _client!.GetQueryApi();
+                var fluxQuery = $"from(bucket: \"{_bucket}\")\n"
+                                + $" |> range(start: {_retensionDays})"
+                                + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{_measurement}\"))";
+
                 var tables = await queryApi.QueryAsync(fluxQuery, _org);
 
                 DateTimeOffset timestamp = DateTimeOffset.MinValue;

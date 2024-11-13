@@ -55,7 +55,6 @@ namespace DCP_App.Services.Abstracts
             _MqttUseTLS = _config.GetValue<bool>(serviceType + ":UseTLS");
             // Topic related
             _mqttAvailableTopic = "dcp/telemetry/available";
-            _mqttForwardTopics = new List<string> { "device/outbound/" };
         }
 
         internal async Task StartWorker()

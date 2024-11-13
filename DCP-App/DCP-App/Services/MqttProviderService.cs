@@ -32,10 +32,6 @@ namespace DCP_App.Services
                 _ = Task.Run(async () => await PublishDataAvailable());
                 _ = Task.Run(async () => await ProcessForwardMessageQueue());
             }
-            else if (_config.GetValue<bool>("MqttProvider:ForwardOnly"))
-            {
-                _ = Task.Run(async () => await StartWorker(), _cancellationToken);
-            }
         }
 
         internal override void OnConnect()

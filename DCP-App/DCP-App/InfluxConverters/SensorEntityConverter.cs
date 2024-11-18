@@ -125,12 +125,6 @@ namespace DCP_App.InfluxConverters
             {
                 case "id":
                     return "id";
-                case "Type":
-                    return "type";
-                case "DcpClientId":
-                    return "dcp_client_id";
-                case "TurbineId":
-                    return "turbine_id";
                 default:
                     return memberInfo.Name;
             }
@@ -158,6 +152,10 @@ namespace DCP_App.InfluxConverters
                 case "Value":
                     return MemberType.NamedFieldValue;
                 case "Id":
+                    return MemberType.Tag;
+                case "Type":
+                    return MemberType.Tag;
+                case "TurbineId":
                     return MemberType.Tag;
                 default:
                     return MemberType.Field;

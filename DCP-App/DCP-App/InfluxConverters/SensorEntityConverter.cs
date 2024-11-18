@@ -27,10 +27,10 @@ namespace DCP_App.InfluxConverters
             //
             var customEntity = new SensorEntity
             {
-                Id = Convert.ToString(fluxRecord.GetValueByKey("id"))!,
-                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("dcp_client_id"))!,
-                TurbineId = Convert.ToString(fluxRecord.GetValueByKey("turbine_id"))!,
-                Type = Convert.ToString(fluxRecord.GetValueByKey("type"))!,
+                Id = Convert.ToString(fluxRecord.GetValueByKey("Id"))!,
+                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("DcpClientId"))!,
+                TurbineId = Convert.ToString(fluxRecord.GetValueByKey("TurbineId"))!,
+                Type = Convert.ToString(fluxRecord.GetValueByKey("Type"))!,
                 Timestamp = fluxRecord.GetTime().GetValueOrDefault().ToDateTimeUtc(),
                 Attributes = new List<SensorAttributeEntity>()
             };
@@ -64,10 +64,10 @@ namespace DCP_App.InfluxConverters
 
             var customEntity = new SensorEntity
             {
-                Id = Convert.ToString(fluxRecord.GetValueByKey("id"))!,
-                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("dcp_client_id"))!,
-                TurbineId = Convert.ToString(fluxRecord.GetValueByKey("turbine_id"))!,
-                Type = Convert.ToString(fluxRecord.GetValueByKey("type"))!,
+                Id = Convert.ToString(fluxRecord.GetValueByKey("Id"))!,
+                DcpClientId = Convert.ToString(fluxRecord.GetValueByKey("DcpClientId"))!,
+                TurbineId = Convert.ToString(fluxRecord.GetValueByKey("TurbineId"))!,
+                Type = Convert.ToString(fluxRecord.GetValueByKey("Type"))!,
                 Timestamp = fluxRecord.GetTime().GetValueOrDefault().ToDateTimeUtc(),
                 Attributes = new List<SensorAttributeEntity>()
             };
@@ -99,10 +99,10 @@ namespace DCP_App.InfluxConverters
             //
             var point = PointData
                 .Measurement("sensor")
-                .Tag("id", ce.Id.ToString())
-                .Field("dcp_client_id", ce.DcpClientId)
-                .Field("turbine_id", ce.TurbineId)
-                .Field("type", ce.Type)
+                .Tag("Id", ce.Id.ToString())
+                .Field("DcpClientId", ce.DcpClientId)
+                .Field("TurbineId", ce.TurbineId)
+                .Field("Type", ce.Type)
                 .Timestamp((DateTimeOffset)ce.Timestamp!, precision);
 
             //

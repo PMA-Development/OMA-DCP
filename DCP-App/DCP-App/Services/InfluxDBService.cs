@@ -67,6 +67,7 @@ namespace DCP_App.Services
         {
             IsConnected();
             _logger.Debug("InfluxDB - ReadAll: Before query");
+
             var queryApi = _client!.GetQueryApiSync(_converter);
             //
             // Select ALL
@@ -82,8 +83,7 @@ namespace DCP_App.Services
         {
             IsConnected();
             _logger.Debug("InfluxDB - ReadAfterTimestamp: Before query");
-
-
+  
             var queryApi = _client!.GetQueryApiSync(_converter); ;
 
             try
@@ -108,7 +108,6 @@ namespace DCP_App.Services
         {
             IsConnected();
             _logger.Debug("InfluxDB - GetLatestByClientId: Before query");
-
 
             var queryApi = _client!.GetQueryApi();
             var fluxQuery = $"from(bucket: \"{_bucket}\")\n"

@@ -45,7 +45,7 @@ namespace DCP_App.InfluxConverters
                     var attribute = new SensorAttributeEntity
                     {
                         Name = key.Replace("property_", string.Empty),
-                        Value = Convert.ToString(value) ?? string.Empty,
+                        Value = double.Parse(Convert.ToString(value)!),
                     };
 
                     customEntity.Attributes.Add(attribute);
@@ -78,7 +78,7 @@ namespace DCP_App.InfluxConverters
                     var attribute = new SensorAttributeEntity
                     {
                         Name = key.Replace("property_", string.Empty),
-                        Value = Convert.ToString(value) ?? string.Empty
+                        Value = double.Parse(Convert.ToString(value)!)
                     };
 
                     customEntity.Attributes.Add(attribute);

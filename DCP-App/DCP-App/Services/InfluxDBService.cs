@@ -113,7 +113,8 @@ namespace DCP_App.Services
             var queryApi = _client!.GetQueryApi();
             var fluxQuery = $"from(bucket: \"{_bucket}\")\n"
                             + $" |> range(start: {_retensionDays})"
-                            + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{_measurement}\"))";
+                            + $" |> filter(fn: (r) => (r[\"_measurement\"] == \"{_measurement}\"))"
+                            + $" |> last()";
 
             try
             {

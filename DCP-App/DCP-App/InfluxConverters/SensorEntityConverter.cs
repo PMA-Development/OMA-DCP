@@ -101,8 +101,8 @@ namespace DCP_App.InfluxConverters
                 .Measurement("sensor")
                 .Tag("Id", ce.Id.ToString())
                 .Field("DcpClientId", ce.DcpClientId)
-                .Field("TurbineId", ce.TurbineId)
-                .Field("Type", ce.Type)
+                .Tag("Type", ce.Type)
+                .Tag("TurbineId", ce.TurbineId)
                 .Timestamp((DateTimeOffset)ce.Timestamp!, precision);
 
             //

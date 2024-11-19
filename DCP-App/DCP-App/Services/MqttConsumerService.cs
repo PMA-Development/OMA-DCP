@@ -221,8 +221,11 @@ namespace DCP_App.Services
                     try
                     {
                         _logger.Information("Consumer - Outbound: Sending outbound message");
-                        var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
-                        await PulishMessage(msg);
+                        MqttApplicationMessageBuilder? msg = null;
+                        if (ForwardTopicQueues.Outbound.TryDequeue(out msg))
+                        {
+                            await PulishMessage(msg!.Build());
+                        }
                     }
                     catch (Exception e)
                     {

@@ -107,8 +107,11 @@ namespace DCP_App.Services
                     try
                     {
                         _logger.Information("Provider - Inbound: Sending outbound message");
-                        var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
-                        await PulishMessage(msg);
+                        MqttApplicationMessageBuilder? msg = null;
+                        if (ForwardTopicQueues.Inbound.TryDequeue(out msg))
+                        {
+                            await PulishMessage(msg!.Build());
+                        }
                     }
                     catch (Exception e)
                     {

@@ -101,37 +101,42 @@ namespace DCP_App.Services.Abstracts
         {
             MqttClientOptions mqttClientOptions = GetMqttClientOptionsBuilder().Build();
             List<MqttClientSubscribeOptions> subscribeOptions = GetSubScriptionOptions();
+            long lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             // Handle reconnection logic and cancellation token properly
             while (!_cancellationToken.IsCancellationRequested)
             {
-                try
+                if ((DateTimeOffset.UtcNow.ToUnixTimeSeconds() - lastUpdated) > 5)
                 {
-                    // Periodically check if the connection is alive, otherwise reconnect
-                    if (!await _mqttClient.TryPingAsync())
+                    lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    try
                     {
-                        _logger.Information("Attempting to connect to MQTT Broker...");
-                        await _mqttClient.ConnectAsync(mqttClientOptions, _cancellationToken);
-
-                        foreach (var subscribeOption in subscribeOptions)
+                        // Periodically check if the connection is alive, otherwise reconnect
+                        if (!await _mqttClient.TryPingAsync())
                         {
-                            await _mqttClient.SubscribeAsync(subscribeOption, _cancellationToken);
-                            _logger.Information($"MQTT client subscribed to topic: {subscribeOption}.");
-                        }
+                            _logger.Information("Attempting to connect to MQTT Broker...");
+                            await _mqttClient.ConnectAsync(mqttClientOptions, _cancellationToken);
 
-                        // Method to override.
-                        OnConnect();
+                            foreach (var subscribeOption in subscribeOptions)
+                            {
+                                await _mqttClient.SubscribeAsync(subscribeOption, _cancellationToken);
+                                _logger.Information($"MQTT client subscribed to topic: {subscribeOption}.");
+                            }
+
+                            // Method to override.
+                            OnConnect();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "An error occurred during MQTT operation.");
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "An error occurred during MQTT operation.");
-                }
-
-                // Check the connection status every 5 seconds
-                await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
+                await DoWork();
             }
         }
+
+        internal abstract Task DoWork();
 
         internal virtual void OnConnect()
         {

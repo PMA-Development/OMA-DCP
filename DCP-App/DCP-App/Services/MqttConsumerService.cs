@@ -34,7 +34,11 @@ namespace DCP_App.Services
         {
 
             _ = Task.Run(() => StartWorker());
-            _ = Task.Run(() => ProcessForwardMessageQueue());
+        }
+
+        internal override async Task DoWork()
+        {
+            await ProcessForwardMessageQueue();
         }
 
         #region On Topic
@@ -214,21 +218,18 @@ namespace DCP_App.Services
 
         private async Task ProcessForwardMessageQueue()
         {
-            while (!_cancellationToken.IsCancellationRequested)
+            if (ForwardTopicQueues.Outbound.Count != 0)
             {
-                if (ForwardTopicQueues.Outbound.Count != 0)
+                try
                 {
-                    try
-                    {
-                        _logger.Information("Consumer - Outbound: Sending outbound message");
-                        var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
-                        await PulishMessage(msg);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Information(e, "Consumer - Error in Outbound: ");
-                        throw;
-                    }
+                    _logger.Information("Consumer - Outbound: Sending outbound message");
+                    var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
+                    await PulishMessage(msg);
+                }
+                catch (Exception e)
+                {
+                    _logger.Information(e, "Consumer - Error in Outbound: ");
+                    throw;
                 }
             }
         }

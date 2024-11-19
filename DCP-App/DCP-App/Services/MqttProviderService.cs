@@ -18,6 +18,8 @@ namespace DCP_App.Services
         internal string _mqttPingTopic = "device/outbound/ping";
         internal string _mqttBeaconTopic = "device/inbound/beacon";
 
+        internal long lastPublishTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {
             _mqttRequestTopic = $"dcp/client/{_clientId}/telemetry/request";
@@ -29,9 +31,13 @@ namespace DCP_App.Services
             if (_config.GetValue<bool>("MqttProvider:Enabled"))
             {
                 _ = Task.Run(async () => await StartWorker(), _cancellationToken);
-                _ = Task.Run(async () => await PublishDataAvailable());
-                _ = Task.Run(async () => await ProcessForwardMessageQueue());
             }
+        }
+
+        internal override async Task DoWork()
+        {
+            await ProcessForwardMessageQueue();
+            await PublishDataAvailable();
         }
 
         internal override void OnConnect()
@@ -66,8 +72,10 @@ namespace DCP_App.Services
 
         private async Task PublishDataAvailable()
         {
-            while (!_cancellationToken.IsCancellationRequested)
+            if ((DateTimeOffset.UtcNow.ToUnixTimeSeconds() - lastPublishTime) > _publishDataAvailableSeconds)
             {
+                lastPublishTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
                 if (await _mqttClient.TryPingAsync())
                 {
                     try
@@ -100,23 +108,19 @@ namespace DCP_App.Services
 
         private async Task ProcessForwardMessageQueue()
         {
-            while (!_cancellationToken.IsCancellationRequested)
+            if (ForwardTopicQueues.Inbound.Count != 0)
             {
-                if (ForwardTopicQueues.Inbound.Count != 0)
+                try
                 {
-                    try
-                    {
-                        _logger.Information("Provider - Inbound: Sending outbound message");
-                        var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
-                        await PulishMessage(msg);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Information(e, "Error in Inbound: ");
-                        throw;
-                    }
+                    _logger.Information("Provider - Inbound: Sending outbound message");
+                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                    await PulishMessage(msg);
                 }
-
+                catch (Exception e)
+                {
+                    _logger.Information(e, "Error in Inbound: ");
+                    throw;
+                }
             }
 
         }

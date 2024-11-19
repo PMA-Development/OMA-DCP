@@ -18,8 +18,6 @@ namespace DCP_App.Services
         internal string _mqttPingTopic = "device/outbound/ping";
         internal string _mqttBeaconTopic = "device/inbound/beacon";
 
-        internal long lastPublishTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {
             _mqttRequestTopic = $"dcp/client/{_clientId}/telemetry/request";
@@ -31,13 +29,9 @@ namespace DCP_App.Services
             if (_config.GetValue<bool>("MqttProvider:Enabled"))
             {
                 _ = Task.Run(async () => await StartWorker(), _cancellationToken);
+                _ = Task.Run(async () => await PublishDataAvailable());
+                _ = Task.Run(async () => await ProcessForwardMessageQueue());
             }
-        }
-
-        internal override async Task DoWork()
-        {
-            await ProcessForwardMessageQueue();
-            await PublishDataAvailable();
         }
 
         internal override void OnConnect()
@@ -72,10 +66,8 @@ namespace DCP_App.Services
 
         private async Task PublishDataAvailable()
         {
-            if ((DateTimeOffset.UtcNow.ToUnixTimeSeconds() - lastPublishTime) > _publishDataAvailableSeconds)
+            while (!_cancellationToken.IsCancellationRequested)
             {
-                lastPublishTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
                 if (await _mqttClient.TryPingAsync())
                 {
                     try
@@ -108,19 +100,23 @@ namespace DCP_App.Services
 
         private async Task ProcessForwardMessageQueue()
         {
-            if (ForwardTopicQueues.Inbound.Count != 0)
+            while (!_cancellationToken.IsCancellationRequested)
             {
-                try
+                if (ForwardTopicQueues.Inbound.Count != 0)
                 {
-                    _logger.Information("Provider - Inbound: Sending outbound message");
-                    var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
-                    await PulishMessage(msg);
+                    try
+                    {
+                        _logger.Information("Provider - Inbound: Sending outbound message");
+                        var msg = ForwardTopicQueues.Inbound.Dequeue().Build();
+                        await PulishMessage(msg);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Information(e, "Error in Inbound: ");
+                        throw;
+                    }
                 }
-                catch (Exception e)
-                {
-                    _logger.Information(e, "Error in Inbound: ");
-                    throw;
-                }
+
             }
 
         }
@@ -172,7 +168,7 @@ namespace DCP_App.Services
             {
                 PublishBeacon();
             }
-            
+
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(ea.ApplicationMessage.Topic)
                 .WithPayload(payload)
@@ -187,7 +183,7 @@ namespace DCP_App.Services
 
         private void PublishBeacon()
         {
-            DeviceBeaconModel deviceBeaconModel = new DeviceBeaconModel { Id=_clientId, Type=_clientType };
+            DeviceBeaconModel deviceBeaconModel = new DeviceBeaconModel { Id = _clientId, Type = _clientType };
 
             if (_clientType.ToLower() == "turbine")
                 deviceBeaconModel.TurbineId = _clientId;

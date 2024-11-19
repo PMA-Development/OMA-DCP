@@ -34,11 +34,7 @@ namespace DCP_App.Services
         {
 
             _ = Task.Run(() => StartWorker());
-        }
-
-        internal override async Task DoWork()
-        {
-            await ProcessForwardMessageQueue();
+            _ = Task.Run(() => ProcessForwardMessageQueue());
         }
 
         #region On Topic
@@ -122,7 +118,7 @@ namespace DCP_App.Services
                 deviceBeaconModel.TurbineId = _clientId;
             else if (_clientType.ToLower() == "island")
                 deviceBeaconModel.IslandId = _clientId;
-            
+
             var applicationMessage = new MqttApplicationMessageBuilder()
                 .WithTopic(ea.ApplicationMessage.Topic)
                 .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
@@ -218,18 +214,21 @@ namespace DCP_App.Services
 
         private async Task ProcessForwardMessageQueue()
         {
-            if (ForwardTopicQueues.Outbound.Count != 0)
+            while (!_cancellationToken.IsCancellationRequested)
             {
-                try
+                if (ForwardTopicQueues.Outbound.Count != 0)
                 {
-                    _logger.Information("Consumer - Outbound: Sending outbound message");
-                    var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
-                    await PulishMessage(msg);
-                }
-                catch (Exception e)
-                {
-                    _logger.Information(e, "Consumer - Error in Outbound: ");
-                    throw;
+                    try
+                    {
+                        _logger.Information("Consumer - Outbound: Sending outbound message");
+                        var msg = ForwardTopicQueues.Outbound.Dequeue().Build();
+                        await PulishMessage(msg);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Information(e, "Consumer - Error in Outbound: ");
+                        throw;
+                    }
                 }
             }
         }

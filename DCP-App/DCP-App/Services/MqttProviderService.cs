@@ -17,6 +17,7 @@ namespace DCP_App.Services
         internal string _mqttRequestTopic;
         internal string _mqttPingTopic = "device/outbound/ping";
         internal string _mqttBeaconTopic = "device/inbound/beacon";
+        private string _mqttTopicLastWill = "device/inbound/lastwill";
 
         public MqttProviderService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService) : base(cts, config, InfluxDBService, "MqttProvider")
         {
@@ -39,6 +40,15 @@ namespace DCP_App.Services
             base.OnConnect();
             // Do a beacon on connect.
             PublishBeacon();
+        }
+
+        internal override MqttClientOptionsBuilder GetMqttClientOptionsBuilder()
+        {
+            MqttClientOptionsBuilder mqttClientOptionsBuilder = base.GetMqttClientOptionsBuilder();
+            mqttClientOptionsBuilder.WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+                .WithWillTopic(_mqttTopicLastWill)
+                .WithWillPayload(_clientId);
+            return mqttClientOptionsBuilder;
         }
 
         private async Task PublishSensorData(string topic, DateTimeOffset timestamp)

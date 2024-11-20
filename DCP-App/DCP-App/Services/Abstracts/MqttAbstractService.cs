@@ -153,7 +153,7 @@ namespace DCP_App.Services.Abstracts
             }
         }
 
-        private MqttClientOptionsBuilder GetMqttClientOptionsBuilder()
+        internal virtual MqttClientOptionsBuilder GetMqttClientOptionsBuilder()
         {
             MqttClientOptionsBuilder mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
                     .WithTcpServer(_mqttHost, _mqttPort) // MQTT broker address and port

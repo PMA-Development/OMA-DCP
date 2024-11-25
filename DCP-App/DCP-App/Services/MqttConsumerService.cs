@@ -124,7 +124,7 @@ namespace DCP_App.Services
                 .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce);
 
-            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+            ForwardTopicQueues.Inbound.Add(applicationMessage);
         }
 
         private void OnTopicInboundForward(MqttApplicationMessageReceivedEventArgs ea, string payload)
@@ -139,7 +139,7 @@ namespace DCP_App.Services
             {
                 applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
             }
-            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+            ForwardTopicQueues.Inbound.Add(applicationMessage);
         }
         #endregion
 
@@ -220,19 +220,11 @@ namespace DCP_App.Services
                 {
                     try
                     {
-                        if (ForwardTopicQueues.Outbound.Count != 0)
-                        {
-                        
-                            _logger.Information("Consumer - Outbound: Sending outbound message");
-                            MqttApplicationMessageBuilder? msg = null;
-                            if (ForwardTopicQueues.Outbound.TryDequeue(out msg))
-                            {
-                                await PulishMessage(msg!.Build());
-                            }
-                        
-                        }
+                        _logger.Information("Consumer - Outbound: Sending outbound message");
+                        MqttApplicationMessageBuilder msg = ForwardTopicQueues.Outbound.Take(_cancellationToken);
+                        await PulishMessage(msg!.Build());
                     }
-                    catch (Exception e)
+                    catch (OperationCanceledException e)
                     {
                         _logger.Information(e, "Consumer - Error in Outbound: ");
                         throw;

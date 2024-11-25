@@ -116,17 +116,11 @@ namespace DCP_App.Services
                 {
                     try
                     {
-                        if (ForwardTopicQueues.Inbound.Count != 0)
-                        {
-                                _logger.Information("Provider - Inbound: Sending Inbound message");
-                                MqttApplicationMessageBuilder? msg = null;
-                                if (ForwardTopicQueues.Inbound.TryDequeue(out msg))
-                                {
-                                    await PulishMessage(msg!.Build());
-                                }
-                        }
+                        _logger.Information("Provider - Inbound: Sending outbound message");
+                        MqttApplicationMessageBuilder msg = ForwardTopicQueues.Inbound.Take(_cancellationToken);
+                        await PulishMessage(msg!.Build());
                     }
-                    catch (Exception e)
+                    catch (OperationCanceledException e)
                     {
                         _logger.Error(e, "Error in Inbound: ");
                         throw;
@@ -153,7 +147,7 @@ namespace DCP_App.Services
             {
                 applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
             }
-            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+            ForwardTopicQueues.Inbound.Add(applicationMessage);
         }
 
         internal override async Task OnTopic(MqttApplicationMessageReceivedEventArgs ea, string payload)
@@ -199,7 +193,7 @@ namespace DCP_App.Services
             {
                 applicationMessage.WithResponseTopic(ea.ApplicationMessage.ResponseTopic);
             }
-            ForwardTopicQueues.Outbound.Enqueue(applicationMessage);
+            ForwardTopicQueues.Outbound.Add(applicationMessage);
         }
 
         private void PublishBeacon()
@@ -217,7 +211,7 @@ namespace DCP_App.Services
                 .WithPayload(JsonConvert.SerializeObject(deviceBeaconModel))
                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce);
 
-            ForwardTopicQueues.Inbound.Enqueue(applicationMessage);
+            ForwardTopicQueues.Inbound.Add(applicationMessage);
         }
 
         internal override List<MqttClientSubscribeOptions> GetSubScriptionOptions()

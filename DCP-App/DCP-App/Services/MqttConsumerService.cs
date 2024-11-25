@@ -214,17 +214,22 @@ namespace DCP_App.Services
 
         private async Task ProcessForwardMessageQueue()
         {
-            while (!_cancellationToken.IsCancellationRequested)
-            {
-                if (ForwardTopicQueues.Outbound.Count != 0)
+            try
+            { 
+                while (!_cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
-                        _logger.Information("Consumer - Outbound: Sending outbound message");
-                        MqttApplicationMessageBuilder? msg = null;
-                        if (ForwardTopicQueues.Outbound.TryDequeue(out msg))
+                        if (ForwardTopicQueues.Outbound.Count != 0)
                         {
-                            await PulishMessage(msg!.Build());
+                        
+                            _logger.Information("Consumer - Outbound: Sending outbound message");
+                            MqttApplicationMessageBuilder? msg = null;
+                            if (ForwardTopicQueues.Outbound.TryDequeue(out msg))
+                            {
+                                await PulishMessage(msg!.Build());
+                            }
+                        
                         }
                     }
                     catch (Exception e)
@@ -234,6 +239,11 @@ namespace DCP_App.Services
                     }
                 }
             }
-        }
+            catch (Exception e)
+            {
+                _logger.Error(e, "ProcessForwardMessageQueue: ");
+                _cts.Cancel(); // Close the program.
+            }
+}
     }
 }

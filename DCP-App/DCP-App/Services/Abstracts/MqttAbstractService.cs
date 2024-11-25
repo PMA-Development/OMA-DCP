@@ -12,6 +12,7 @@ namespace DCP_App.Services.Abstracts
         internal virtual Serilog.ILogger _logger => Serilog.Log.ForContext<MqttAbstractService>();
         internal readonly IConfiguration _config;
         internal readonly IInfluxDBService _influxDBService;
+        internal readonly CancellationTokenSource _cts;
         internal readonly CancellationToken _cancellationToken;
 
         // Application settings
@@ -34,6 +35,7 @@ namespace DCP_App.Services.Abstracts
 
         public MqttAbstractService(CancellationTokenSource cts, IConfiguration config, IInfluxDBService InfluxDBService, string serviceType)
         {
+            _cts = cts;
             _cancellationToken = cts.Token;
             _config = config;
             _influxDBService = InfluxDBService;
